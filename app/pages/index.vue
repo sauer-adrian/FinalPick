@@ -89,8 +89,14 @@ async function voteForGame(gameId, direction) {
 
 
 function sortGamesByVotes() {
-  games.value.sort((a, b) => b.voteCount - a.voteCount)
+  games.value.sort((a, b) => {
+    if (b.voteCount !== a.voteCount) {
+      return b.voteCount - a.voteCount // Primary: votes (desc)
+    }
+    return a.name.localeCompare(b.name) // Secondary: name (asc)
+  })
 }
+
 
 
 // Handle realtime updates
