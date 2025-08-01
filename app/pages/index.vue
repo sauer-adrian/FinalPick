@@ -262,12 +262,16 @@ async function deleteGame(gameId) {
       <GameSearchSteam @game-added="getGames" />
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-stretch">
-      <TransitionGroup name="list" tag="div" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-stretch">
-        <div v-for="game in games" :key="game.id" class="h-full">
-          <GameCard :game="game" :onVote="voteForGame" :onDelete="deleteGame" />
-        </div>
-      </TransitionGroup>
-    </div>
+    <!-- ✅ TransitionGroup becomes the grid -->
+    <TransitionGroup
+      name="list"
+      tag="div"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-stretch"
+    >
+      <div v-for="game in games" :key="game.id" class="h-full">
+        <GameCard :game="game" :onVote="voteForGame" :onDelete="deleteGame" />
+      </div>
+    </TransitionGroup>
   </UContainer>
 </template>
+
