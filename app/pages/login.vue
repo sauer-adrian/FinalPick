@@ -75,26 +75,16 @@ const tabItems: TabsItem[] = [
   <ClientOnly>
     <UContainer class="min-h-screen flex items-center justify-center">
       <UCard class="w-full max-w-md p-6">
+        <template #header>
+          <h2 class="text-3xl font-bold text-center">FinalPick</h2>
+        </template>
         <UTabs :items="tabItems" class="w-full" variant="pill" size="md">
           <!-- Login Tab -->
           <template #login>
             <form class="space-y-4" @submit.prevent="submitLogin">
-              <UInput
-                v-model="emailLogin"
-                type="email"
-                placeholder="Email"
-                size="lg"
-                class="w-full"
-                required
-              />
-              <UInput
-                v-model="passwordLogin"
-                type="password"
-                placeholder="Password"
-                size="lg"
-                class="w-full"
-                required
-              />
+              <UInput v-model="emailLogin" type="email" placeholder="Email" size="lg" class="w-full" required />
+              <UInput v-model="passwordLogin" type="password" placeholder="Password" size="lg" class="w-full"
+                required />
               <UButton :loading="loadingLogin" type="submit" size="lg" class="w-full">
                 Login
               </UButton>
@@ -111,22 +101,9 @@ const tabItems: TabsItem[] = [
           <!-- Signup Tab -->
           <template #signup>
             <form class="space-y-4" @submit.prevent="submitSignup">
-              <UInput
-                v-model="emailSignup"
-                type="email"
-                placeholder="Email"
-                size="lg"
-                class="w-full"
-                required
-              />
-              <UInput
-                v-model="passwordSignup"
-                type="password"
-                placeholder="Password"
-                size="lg"
-                class="w-full"
-                required
-              />
+              <UInput v-model="emailSignup" type="email" placeholder="Email" size="lg" class="w-full" required />
+              <UInput v-model="passwordSignup" type="password" placeholder="Password" size="lg" class="w-full"
+                required />
               <UButton :loading="loadingSignup" type="submit" size="lg" class="w-full">
                 Sign Up
               </UButton>
