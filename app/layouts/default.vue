@@ -9,7 +9,7 @@ async function logout() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen">
     <!-- Navigation -->
     <nav class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
       <!-- Left: Logo + App Name -->
@@ -19,12 +19,9 @@ async function logout() {
         <h1 class="text-xl font-semibold text-gray-800 dark:text-white">FinalPick</h1>
       </div>
 
-      <!-- Right: User avatar + logout -->
       <div class="flex items-center space-x-4">
         <UIcon name="i-lucide-user" class="w-6 h-6 text-gray-500 dark:text-gray-300" />
-        <UButton v-if="user" @click="logout" size="sm" color="red" variant="soft">
-          Logout
-        </UButton>
+        <UButton v-if="user" icon="i-lucide-log-out" @click="logout" size="sm" color="error" variant="soft" />
       </div>
     </nav>
 
