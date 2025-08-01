@@ -102,8 +102,7 @@ async function addGame(game) {
 <template>
   <div class="my-6">
     <div class="flex items-center gap-2">
-      <UInput class="flex-1" v-model="search" placeholder="Search Steam..." @keyup.enter="searchGames" />
-      <UButton @click="searchGames" :loading="loading">Search</UButton>
+      <UInput class="flex-1" v-model="search" placeholder="Search Steam..." @keyup.enter="searchGames" size="xl" />
     </div>
 
     <div v-if="results.length" class="mt-4 space-y-2">

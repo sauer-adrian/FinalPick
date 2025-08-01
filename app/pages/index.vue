@@ -9,6 +9,8 @@ const user = useSupabaseUser()
 const games = ref([])
 const isGamesLoaded = ref(false)
 let voteSubscription = null
+let gameSubscription = null
+
 
 // Fetch games + vote data
 async function getGames() {
@@ -111,6 +113,45 @@ async function handleVoteChange(payload) {
 }
 
 
+async function handleGameChange(payload) {
+  console.log('[Realtime] Game change received:', payload)
+
+  const { new: newGame, old: oldGame, eventType } = payload
+
+  if (eventType === 'INSERT') {
+    const userId = user.value?.id ?? null
+    const voteCount = 0
+    const userVote = 0
+
+    // Prevent duplicates
+    if (games.value.find(g => g.id === newGame.id)) return
+
+    games.value.push({
+      ...newGame,
+      voteCount,
+      userVote,
+    })
+  }
+
+  if (eventType === 'DELETE') {
+    games.value = games.value.filter(g => g.id !== oldGame.id)
+  }
+
+  if (eventType === 'UPDATE') {
+    const index = games.value.findIndex(g => g.id === newGame.id)
+    if (index !== -1) {
+      games.value[index] = {
+        ...games.value[index],
+        ...newGame,
+      }
+    }
+  }
+
+  await nextTick()
+}
+
+
+
 
 // Subscribe to realtime
 async function setupSubscription() {
@@ -130,6 +171,22 @@ async function setupSubscription() {
     console.error('Subscription failed:', error)
     voteSubscription = null
   }
+
+  gameSubscription = supabase
+    .channel('games-realtime')
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'games',
+      old_record: true
+    }, handleGameChange)
+
+  const { error: gameError } = await gameSubscription.subscribe()
+  if (gameError) {
+    console.error('Game subscription failed:', gameError)
+    gameSubscription = null
+  }
+
 }
 
 // Cleanup on unmount
@@ -137,6 +194,11 @@ onBeforeUnmount(() => {
   if (voteSubscription) {
     supabase.removeChannel(voteSubscription)
     voteSubscription = null
+  }
+
+  if (gameSubscription) {
+    supabase.removeChannel(gameSubscription)
+    gameSubscription = null
   }
 })
 
@@ -147,11 +209,17 @@ watch(user, async (newUser, oldUser) => {
     voteSubscription = null
   }
 
+  if (gameSubscription) {
+    supabase.removeChannel(gameSubscription)
+    gameSubscription = null
+  }
+
   if (newUser) {
     await getGames()
     await setupSubscription()
   }
 })
+
 
 // Initial load
 onMounted(async () => {
