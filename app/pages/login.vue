@@ -82,8 +82,8 @@ const tabItems: TabsItem[] = [
           <!-- Login Tab -->
           <template #login>
             <form class="space-y-4" @submit.prevent="submitLogin">
-              <UInput v-model="emailLogin" type="email" placeholder="Email" size="lg" class="w-full" required />
-              <UInput v-model="passwordLogin" type="password" placeholder="Password" size="lg" class="w-full"
+              <UInput v-model="emailLogin" type="email" placeholder="Email" size="lg" class="w-full text-base" required />
+              <UInput v-model="passwordLogin" type="password" placeholder="Password" size="lg" class="w-full text-base"
                 required />
               <UButton :loading="loadingLogin" type="submit" size="lg" class="w-full text-center">
                 Login
@@ -101,8 +101,8 @@ const tabItems: TabsItem[] = [
           <!-- Signup Tab -->
           <template #signup>
             <form class="space-y-4" @submit.prevent="submitSignup">
-              <UInput v-model="emailSignup" type="email" placeholder="Email" size="lg" class="w-full" required />
-              <UInput v-model="passwordSignup" type="password" placeholder="Password" size="lg" class="w-full"
+              <UInput v-model="emailSignup" type="email" placeholder="Email" size="lg" class="w-full text-base" required />
+              <UInput v-model="passwordSignup" type="password" placeholder="Password" size="lg" class="w-full text-base"
                 required />
               <UButton :loading="loadingSignup" type="submit" size="lg" class="w-full text-center">
                 Sign Up
