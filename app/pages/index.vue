@@ -243,7 +243,7 @@ async function deleteGame(gameId) {
 </script>
 
 <template>
-  <UContainer>
+  <UContainer class="pb-4">
     <div v-if="user" class="mb-4 text-sm text-gray-600">
       Logged in as: <strong>{{ user.email }}</strong>
     </div>
