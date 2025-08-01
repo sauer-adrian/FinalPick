@@ -102,7 +102,14 @@ async function addGame(game) {
 <template>
   <div class="my-6">
     <div class="flex items-center gap-2">
-      <UInput class="flex-1" v-model="search" placeholder="Search Steam..." @keyup.enter="searchGames" size="xl" />
+      <UInput class="flex-1" v-model="search" placeholder="Search Steam..." @keyup.enter="searchGames" size="xl"
+        :ui="{ trailing: 'pe-1' }">
+        <template v-if="search.length" #trailing>
+          <UButton color="neutral" variant="link" size="sm" icon="i-lucide-circle-x" aria-label="Clear input"
+            @click="search = ''" />
+        </template>
+      </UInput>
+
     </div>
 
     <div v-if="results.length" class="mt-4 space-y-2">
