@@ -275,9 +275,9 @@ async function deleteGame(gameId) {
 
 <template>
   <UContainer class="pb-4">
-    <div v-if="user" class="mb-4 text-sm text-gray-600">
+<!--     <div v-if="user" class="mb-4 text-sm text-gray-600">
       Logged in as: <strong>{{ user.email }}</strong>
-    </div>
+    </div>  //used before the navbar-->
 
     <div class="w-full mb-6">
       <GameSearchSteam @game-added="getGames" />
