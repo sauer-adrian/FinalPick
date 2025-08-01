@@ -78,21 +78,21 @@ const tabItems: TabsItem[] = [
         <template #header>
           <h2 class="text-3xl font-bold text-center">FinalPick</h2>
         </template>
-        <UTabs :items="tabItems" class="w-full" variant="pill" size="md">
+        <UTabs :items="tabItems" class="w-full" variant="pill" size="lg">
           <!-- Login Tab -->
           <template #login>
             <form class="space-y-4" @submit.prevent="submitLogin">
               <UInput v-model="emailLogin" type="email" placeholder="Email" size="lg" class="w-full" required />
               <UInput v-model="passwordLogin" type="password" placeholder="Password" size="lg" class="w-full"
                 required />
-              <UButton :loading="loadingLogin" type="submit" size="lg" class="w-full">
+              <UButton :loading="loadingLogin" type="submit" size="lg" class="w-full text-center">
                 Login
               </UButton>
 
-              <div v-if="errorLogin" class="text-red-500 text-sm text-center">
+              <div v-if="errorLogin" class="text-red-500 text-center">
                 {{ errorLogin }}
               </div>
-              <div v-if="messageLogin" class="text-green-600 text-sm text-center">
+              <div v-if="messageLogin" class="text-green-600 text-center">
                 {{ messageLogin }}
               </div>
             </form>
@@ -104,14 +104,14 @@ const tabItems: TabsItem[] = [
               <UInput v-model="emailSignup" type="email" placeholder="Email" size="lg" class="w-full" required />
               <UInput v-model="passwordSignup" type="password" placeholder="Password" size="lg" class="w-full"
                 required />
-              <UButton :loading="loadingSignup" type="submit" size="lg" class="w-full">
+              <UButton :loading="loadingSignup" type="submit" size="lg" class="w-full text-center">
                 Sign Up
               </UButton>
 
-              <div v-if="errorSignup" class="text-red-500 text-sm text-center">
+              <div v-if="errorSignup" class="text-red-500 text-center">
                 {{ errorSignup }}
               </div>
-              <div v-if="messageSignup" class="text-green-600 text-sm text-center">
+              <div v-if="messageSignup" class="text-green-600 text-center">
                 {{ messageSignup }}
               </div>
             </form>
