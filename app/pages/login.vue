@@ -1,5 +1,9 @@
-<script setup>
+<script setup lang="ts">
+import type { TabsItem } from '@nuxt/ui'
+
 const supabase = useSupabaseClient()
+const router = useRouter()
+
 const emailLogin = ref('')
 const passwordLogin = ref('')
 const emailSignup = ref('')
@@ -13,8 +17,6 @@ const messageLogin = ref('')
 
 const errorSignup = ref('')
 const messageSignup = ref('')
-
-const router = useRouter()
 
 async function submitLogin() {
   loadingLogin.value = true
@@ -54,60 +56,91 @@ async function submitSignup() {
     messageSignup.value = 'Signup successful! Check your email to confirm.'
   }
 }
+
+const tabItems: TabsItem[] = [
+  {
+    label: 'Login',
+    icon: 'i-lucide-log-in',
+    slot: 'login',
+  },
+  {
+    label: 'Sign Up',
+    icon: 'i-lucide-user-plus',
+    slot: 'signup',
+  }
+]
 </script>
 
 <template>
   <ClientOnly>
-  <UContainer class="min-h-screen flex items-center justify-center">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
-      <!-- Login Card -->
-      <UCard class="p-6">
-        <template #header>
-          <h2 class="text-2xl font-semibold">Login</h2>
-        </template>
+    <UContainer class="min-h-screen flex items-center justify-center">
+      <UCard class="w-full max-w-md p-6">
+        <UTabs :items="tabItems" class="w-full" variant="pill" size="md">
+          <!-- Login Tab -->
+          <template #login>
+            <form class="space-y-4" @submit.prevent="submitLogin">
+              <UInput
+                v-model="emailLogin"
+                type="email"
+                placeholder="Email"
+                size="lg"
+                class="w-full"
+                required
+              />
+              <UInput
+                v-model="passwordLogin"
+                type="password"
+                placeholder="Password"
+                size="lg"
+                class="w-full"
+                required
+              />
+              <UButton :loading="loadingLogin" type="submit" size="lg" class="w-full">
+                Login
+              </UButton>
 
-        <form class="space-y-4" @submit.prevent="submitLogin">
-          <UInput class="w-full" v-model="emailLogin" type="email" placeholder="Email" size="lg" required />
-          <UInput class="w-full" v-model="passwordLogin" type="password" placeholder="Password" size="lg" required />
+              <div v-if="errorLogin" class="text-red-500 text-sm text-center">
+                {{ errorLogin }}
+              </div>
+              <div v-if="messageLogin" class="text-green-600 text-sm text-center">
+                {{ messageLogin }}
+              </div>
+            </form>
+          </template>
 
-          <UButton :loading="loadingLogin" type="submit" size="lg" class="w-full">
-            Login
-          </UButton>
+          <!-- Signup Tab -->
+          <template #signup>
+            <form class="space-y-4" @submit.prevent="submitSignup">
+              <UInput
+                v-model="emailSignup"
+                type="email"
+                placeholder="Email"
+                size="lg"
+                class="w-full"
+                required
+              />
+              <UInput
+                v-model="passwordSignup"
+                type="password"
+                placeholder="Password"
+                size="lg"
+                class="w-full"
+                required
+              />
+              <UButton :loading="loadingSignup" type="submit" size="lg" class="w-full">
+                Sign Up
+              </UButton>
 
-          <div v-if="errorLogin" class="text-red-500 text-sm text-center">
-            {{ errorLogin }}
-          </div>
-
-          <div v-if="messageLogin" class="text-green-600 text-sm text-center">
-            {{ messageLogin }}
-          </div>
-        </form>
+              <div v-if="errorSignup" class="text-red-500 text-sm text-center">
+                {{ errorSignup }}
+              </div>
+              <div v-if="messageSignup" class="text-green-600 text-sm text-center">
+                {{ messageSignup }}
+              </div>
+            </form>
+          </template>
+        </UTabs>
       </UCard>
-
-      <!-- Signup Card -->
-      <UCard class="p-6">
-        <template #header>
-          <h2 class="text-2xl font-semibold">Sign Up</h2>
-        </template>
-
-        <form class="space-y-4" @submit.prevent="submitSignup">
-          <UInput class="w-full" v-model="emailSignup" type="email" placeholder="Email" size="lg" required />
-          <UInput class="w-full" v-model="passwordSignup" type="password" placeholder="Password" size="lg" required />
-
-          <UButton :loading="loadingSignup" type="submit" size="lg" class="w-full">
-            Sign Up
-          </UButton>
-
-          <div v-if="errorSignup" class="text-red-500 text-sm text-center">
-            {{ errorSignup }}
-          </div>
-
-          <div v-if="messageSignup" class="text-green-600 text-sm text-center">
-            {{ messageSignup }}
-          </div>
-        </form>
-      </UCard>
-    </div>
-  </UContainer>
+    </UContainer>
   </ClientOnly>
 </template>
