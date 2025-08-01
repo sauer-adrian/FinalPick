@@ -32,6 +32,7 @@ async function getGames() {
     }
   })
 
+  sortGamesByVotes()
   isGamesLoaded.value = true
 }
 
@@ -69,7 +70,13 @@ async function voteForGame(gameId, direction) {
       game.userVote = direction
     }
   }
+  sortGamesByVotes()
 }
+
+function sortGamesByVotes() {
+  games.value.sort((a, b) => b.voteCount - a.voteCount)
+}
+
 
 // Handle realtime updates
 async function handleVoteChange(payload) {
@@ -108,6 +115,7 @@ async function handleVoteChange(payload) {
     userVote,
   }
   await nextTick()
+  sortGamesByVotes()
 
   console.log(`[Realtime] Updated game ${gameId}: voteCount=${voteCount}, userVote=${userVote}`)
 }
@@ -131,6 +139,7 @@ async function handleGameChange(payload) {
       voteCount,
       userVote,
     })
+    sortGamesByVotes()
   }
 
   if (eventType === 'DELETE') {
@@ -145,6 +154,7 @@ async function handleGameChange(payload) {
         ...newGame,
       }
     }
+    sortGamesByVotes()
   }
 
   await nextTick()
