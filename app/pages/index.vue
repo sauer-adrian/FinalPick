@@ -40,12 +40,14 @@ async function getGames() {
 async function voteForGame(gameId, direction) {
   if (!user.value) return
 
-  const game = games.value.find(g => g.id === gameId)
-  if (!game) return
+  const index = games.value.findIndex(g => g.id === gameId)
+  if (index === -1) return
 
+  const game = games.value[index]
   const currentVote = game.userVote || 0
 
   if (currentVote === direction) {
+    // User is removing their vote
     const { error } = await supabase
       .from('votes')
       .delete()
@@ -53,10 +55,17 @@ async function voteForGame(gameId, direction) {
       .eq('game_id', gameId)
 
     if (!error) {
-      game.voteCount -= currentVote
-      game.userVote = 0
+      const updatedGame = {
+        ...game,
+        voteCount: game.voteCount - currentVote,
+        userVote: 0,
+      }
+
+      games.value.splice(index, 1, updatedGame)
+      sortGamesByVotes()
     }
   } else {
+    // User is changing or casting a new vote
     const { error } = await supabase
       .from('votes')
       .upsert({
@@ -66,12 +75,18 @@ async function voteForGame(gameId, direction) {
       }, { onConflict: 'user_id,game_id' })
 
     if (!error) {
-      game.voteCount += direction - currentVote
-      game.userVote = direction
+      const updatedGame = {
+        ...game,
+        voteCount: game.voteCount + (direction - currentVote),
+        userVote: direction,
+      }
+
+      games.value.splice(index, 1, updatedGame)
+      sortGamesByVotes()
     }
   }
-  sortGamesByVotes()
 }
+
 
 function sortGamesByVotes() {
   games.value.sort((a, b) => b.voteCount - a.voteCount)
