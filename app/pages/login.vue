@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  layout: false,
+})
+
 import type { TabsItem } from '@nuxt/ui'
 
 const supabase = useSupabaseClient()
