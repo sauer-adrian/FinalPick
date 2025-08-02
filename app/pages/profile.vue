@@ -23,6 +23,8 @@ onMounted(async () => {
   }
 })
 
+const { notify } = useNotify()
+
 async function saveProfile() {
   loading.value = true
   const { error } = await supabase
@@ -32,8 +34,24 @@ async function saveProfile() {
       ...profile.value
     })
   loading.value = false
-  if (!error) alert('Profile updated!')
+
+  if (!error) {
+    notify({
+      title: 'Profile updated',
+      description: 'Your changes have been saved.',
+      icon: 'i-lucide-check-circle',
+      color: 'success'
+    })
+  } else {
+    notify({
+      title: 'Update failed',
+      description: error.message,
+      icon: 'i-lucide-x-circle',
+      color: 'error'
+    })
+  }
 }
+
 </script>
 
 <template>
