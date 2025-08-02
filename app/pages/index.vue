@@ -333,7 +333,7 @@ function confirmDeleteGame(game) {
   <template #footer="{ close }">
     <div class="flex justify-end gap-2">
       <UButton color="neutral" variant="outline" @click="close()">Cancel</UButton>
-      <UButton color="red" @click="handleDelete(close)">Delete</UButton>
+      <UButton color="error" @click="handleDelete(close)">Delete</UButton>
     </div>
   </template>
 </UModal>
