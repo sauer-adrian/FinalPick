@@ -14,7 +14,7 @@ defineProps({
           <img :src="game.cover_url" alt="Cover" class="w-16 h-16 object-cover rounded" />
           <h3 class="text-lg font-semibold">{{ game.name }}</h3>
         </div>
-        <button @click="onDelete(game.id)"
+        <button @click="onDelete(game)"
           class="text-gray-400 hover:text-red-500 transition ml-2 cursor-pointer hover:bg-red-500/10 p-1 rounded"
           title="Delete game">
           <UIcon name="i-lucide-trash" class="size-4" />

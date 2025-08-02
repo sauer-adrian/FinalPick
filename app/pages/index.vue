@@ -261,16 +261,33 @@ onMounted(async () => {
 })
 
 // Delete game
-async function deleteGame(gameId) {
+const toast = useToast()
+
+async function deleteGame(game) {
   const { error } = await supabase
     .from('games')
     .delete()
-    .eq('id', gameId)
+    .eq('id', game.id)
 
   if (!error) {
-    games.value = games.value.filter(g => g.id !== gameId)
+    games.value = games.value.filter(g => g.id !== game.id)
+
+    toast.add({
+      title: 'Game removed',
+      description: `${game.name} was deleted from the list.`,
+      icon: 'i-lucide-trash',
+      color: 'warning'
+    })
+  } else {
+    toast.add({
+      title: 'Error deleting game',
+      description: error.message || 'Something went wrong.',
+      icon: 'i-lucide-x-circle',
+      color: 'error'
+    })
   }
 }
+
 </script>
 
 <template>
