@@ -260,32 +260,49 @@ onMounted(async () => {
   }
 })
 
-// Delete game
+
 const toast = useToast()
 
-async function deleteGame(game) {
-  const { error } = await supabase
+function handleDelete(close) {
+  if (!gameToDelete.value) return
+
+  const game = gameToDelete.value
+
+  supabase
     .from('games')
     .delete()
     .eq('id', game.id)
+    .then(({ error }) => {
+      if (!error) {
+        games.value = games.value.filter(g => g.id !== game.id)
+        toast.add({
+          title: 'Game removed',
+          description: `${game.name} was deleted from the list.`,
+          icon: 'i-lucide-trash',
+          color: 'warning'
+        })
+      } else {
+        toast.add({
+          title: 'Error deleting game',
+          description: error.message || 'Something went wrong.',
+          icon: 'i-lucide-x-circle',
+          color: 'error'
+        })
+      }
 
-  if (!error) {
-    games.value = games.value.filter(g => g.id !== game.id)
+      // ✅ Close the modal
+      close()
+      gameToDelete.value = null
+    })
+}
 
-    toast.add({
-      title: 'Game removed',
-      description: `${game.name} was deleted from the list.`,
-      icon: 'i-lucide-trash',
-      color: 'warning'
-    })
-  } else {
-    toast.add({
-      title: 'Error deleting game',
-      description: error.message || 'Something went wrong.',
-      icon: 'i-lucide-x-circle',
-      color: 'error'
-    })
-  }
+
+const showDeleteModal = ref(false)
+const gameToDelete = ref(null)
+
+function confirmDeleteGame(game) {
+  gameToDelete.value = game
+  showDeleteModal.value = true
 }
 
 </script>
@@ -307,9 +324,18 @@ async function deleteGame(game) {
       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 items-stretch"
     >
       <div v-for="game in games" :key="game.id" class="h-full">
-        <GameCard :game="game" :onVote="voteForGame" :onDelete="deleteGame" />
+        <GameCard :game="game" :onVote="voteForGame" :onDelete="confirmDeleteGame" />
       </div>
     </TransitionGroup>
   </UContainer>
+
+  <UModal v-model:open="showDeleteModal" :title="`Delete ${gameToDelete?.name}?`" description="Are you sure you want to remove this game from the list?">
+  <template #footer="{ close }">
+    <div class="flex justify-end gap-2">
+      <UButton color="neutral" variant="outline" @click="close()">Cancel</UButton>
+      <UButton color="red" @click="handleDelete(close)">Delete</UButton>
+    </div>
+  </template>
+</UModal>
 </template>
 
