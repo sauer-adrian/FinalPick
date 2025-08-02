@@ -79,9 +79,13 @@ const tabItems: TabsItem[] = [
   <ClientOnly>
     <UContainer class="min-h-screen flex items-center justify-center">
       <UCard class="w-full max-w-md p-6">
-        <template #header>
-          <h2 class="text-3xl font-bold text-center">FinalPick</h2>
-        </template>
+        template #header>
+        <div class="flex items-center justify-center space-x-3">
+          <img src="/logo.png" alt="Logo" class="h-10 w-10" />
+          <h2 class="text-3xl font-bold">FinalPick</h2>
+        </div>
+</template>
+
         <UTabs :items="tabItems" class="w-full" variant="pill" size="lg">
           <!-- Login Tab -->
           <template #login>
