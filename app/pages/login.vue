@@ -27,7 +27,7 @@ async function submitLogin() {
   errorLogin.value = ''
   messageLogin.value = ''
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: emailLogin.value,
     password: passwordLogin.value
   })
@@ -36,11 +36,38 @@ async function submitLogin() {
 
   if (error) {
     errorLogin.value = error.message
-  } else {
-    messageLogin.value = 'Logged in successfully.'
-    router.push('/')
+    return
   }
+
+  messageLogin.value = 'Logged in successfully.'
+
+  // ✅ Insert profile if not existing
+  const userId = data.user?.id
+  if (userId) {
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', userId)
+      .single()
+
+    if (!profile && !profileError) {
+      // Already exists (safe fallback)
+    } else if (profileError?.code === 'PGRST116') {
+      // ✅ Not found: insert blank profile
+      await supabase.from('profiles').insert({
+        id: userId,
+        firstname: '',
+        lastname: '',
+        steam_username: '',
+        discord_username: ''
+      })
+    }
+  }
+
+  router.push('/')
 }
+
+
 
 async function submitSignup() {
   loadingSignup.value = true
