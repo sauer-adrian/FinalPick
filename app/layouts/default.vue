@@ -9,9 +9,6 @@ async function logout() {
 </script>
 
 <template>
-  <!-- Debug -->
-  <pre class="text-xs text-red-500">{{ user }}</pre>
-  <pre class="text-xs text-green-500">{{ user?.value }}</pre>
 
   <div class="min-h-screen">
     <!-- Navigation -->
@@ -25,8 +22,8 @@ async function logout() {
 
       <!-- Right: Buttons -->
       <div class="flex items-center space-x-4">
-        <UButton icon="i-lucide-user" @click="() => navigateTo('/profile')" size="sm" color="primary" variant="soft" />
-        <UButton icon="i-lucide-log-out" @click="logout" size="sm" color="error" variant="soft" />
+        <UButton icon="i-lucide-user" @click="() => navigateTo('/profile')" size="sm" color="primary" variant="soft" class="cursor-pointer" />
+        <UButton icon="i-lucide-log-out" @click="logout" size="sm" color="error" variant="soft" class="cursor-pointer"/>
       </div>
     </nav>
 
