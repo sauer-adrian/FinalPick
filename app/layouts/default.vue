@@ -9,6 +9,10 @@ async function logout() {
 </script>
 
 <template>
+  <!-- Debug -->
+<pre class="text-xs text-red-500">{{ user }}</pre>
+<pre class="text-xs text-green-500">{{ user?.value }}</pre>
+
   <div class="min-h-screen">
     <!-- Navigation -->
     <nav class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900">
