@@ -109,36 +109,56 @@ async function saveProfile() {
 
       <!-- Personal Info Section -->
       <UCard>
-        <template #header>
-          <h3 class="text-lg font-medium text-gray-700 dark:text-white">Personal Information</h3>
-        </template>
+  <template #header>
+    <h3 class="text-lg font-medium text-gray-700 dark:text-white">
+      Personal Information
+    </h3>
+  </template>
 
-        <div class="flex items-center gap-6">
-          <!-- Avatar Preview -->
-          <img v-if="avatarPreview" :src="avatarPreview" alt="Profile Picture"
-            class="w-24 h-24 rounded-full object-cover" />
+  <!-- Vertical spacing between major sections -->
+  <div class="space-y-6">
 
-          <!-- Name Fields -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-            <!-- First Name -->
-            <UFormField label="First Name">
-              <UInput v-model="profile.firstname" placeholder="Enter your first name" />
-            </UFormField>
+    <!-- Avatar + names (in a row) -->
+    <div class="flex items-start gap-6">
+      <!-- Avatar preview -->
+      <img
+        v-if="avatarPreview"
+        :src="avatarPreview"
+        alt="Profile Picture"
+        class="w-24 h-24 rounded-full object-cover"
+      />
 
-            <!-- Last Name -->
-            <UFormField label="Last Name">
-              <UInput v-model="profile.lastname" placeholder="Enter your last name" />
-            </UFormField>
-          </div>
+      <!-- First & Last name stacked -->
+      <div class="flex-1 grid grid-cols-1 gap-4">
+        <UFormField label="First Name">
+          <UInput v-model="profile.firstname" placeholder="Enter your first name" />
+        </UFormField>
 
-          <!-- File Upload -->
-          <div class="mt-6">
-            <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">Upload Profile Picture</label>
-            <UFileUpload v-model="uploadedFile" accept="image/*" :multiple="false" color="primary" variant="area"
-              class="w-full min-h-36" label="Drop your image here" description="PNG, JPG, or WebP (max. 2MB)" />
-          </div>
-        </div>
-      </UCard>
+        <UFormField label="Last Name">
+          <UInput v-model="profile.lastname" placeholder="Enter your last name" />
+        </UFormField>
+      </div>
+    </div>
+
+    <!-- File upload (own row) -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">
+        Upload Profile Picture
+      </label>
+      <UFileUpload
+        v-model="uploadedFile"
+        accept="image/*"
+        :multiple="false"
+        color="primary"
+        variant="area"
+        class="w-full min-h-36"
+        label="Drop your image here"
+        description="PNG, JPG, or WebP (max. 2 MB)"
+      />
+    </div>
+  </div>
+</UCard>
+
 
       <!-- Gaming Accounts Section -->
       <UCard>
