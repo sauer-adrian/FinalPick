@@ -100,70 +100,94 @@ async function saveProfile() {
 
 <template>
   <UContainer>
-    <div class="space-y-6 max-w-2xl mx-auto py-6">
-      <!-- Title -->
-      <div>
-        <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">Edit Profile</h2>
-        <p class="text-gray-500 text-sm">Update your personal details and connected accounts.</p>
+    <div class="max-w-3xl mx-auto py-10 space-y-10">
+      <!-- Page Header -->
+      <div class="text-center">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Your Player Profile</h1>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Customize your identity for LAN parties and matchmaking.</p>
       </div>
 
-      <!-- Personal Info Section -->
+      <!-- Profile Card -->
       <UCard>
         <template #header>
-          <h3 class="text-lg font-medium text-gray-700 dark:text-white">Personal Information</h3>
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Profile Info</h2>
+          </div>
         </template>
 
-        <div class="flex items-center gap-6">
+        <div class="flex flex-col md:flex-row items-center gap-6">
           <!-- Avatar Preview -->
-          <img v-if="avatarPreview" :src="avatarPreview" alt="Profile Picture"
-            class="w-24 h-24 rounded-full object-cover" />
+          <div class="flex flex-col items-center">
+            <UAvatar
+              :src="avatarPreview"
+              alt="Avatar"
+              size="xl"
+              class="ring-2 ring-primary-500"
+            />
+            <p class="text-xs text-gray-500 mt-1">Click to update</p>
 
-          <!-- Name Fields -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-            <!-- First Name -->
-            <UFormField label="First Name">
-              <UInput v-model="profile.firstname" placeholder="Enter your first name" />
-            </UFormField>
-
-            <!-- Last Name -->
-            <UFormField label="Last Name">
-              <UInput v-model="profile.lastname" placeholder="Enter your last name" />
-            </UFormField>
+            <!-- File Upload -->
+            <UFileUpload
+              v-model="uploadedFile"
+              accept="image/*"
+              :multiple="false"
+              variant="soft"
+              class="mt-2 w-40"
+              icon="i-lucide-upload"
+              description="PNG, JPG, WebP – Max 2MB"
+            />
           </div>
 
-          <!-- File Upload -->
-          <div class="mt-6">
-            <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">Upload Profile Picture</label>
-            <UFileUpload v-model="uploadedFile" accept="image/*" :multiple="false" color="primary" variant="area"
-              class="w-full min-h-36" label="Drop your image here" description="PNG, JPG, or WebP (max. 2MB)" />
+          <!-- Name Fields -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 w-full">
+            <UFormGroup label="First Name">
+              <UInput v-model="profile.firstname" placeholder="John" />
+            </UFormGroup>
+            <UFormGroup label="Last Name">
+              <UInput v-model="profile.lastname" placeholder="Doe" />
+            </UFormGroup>
           </div>
         </div>
       </UCard>
 
-      <!-- Gaming Accounts Section -->
+      <!-- Connected Accounts -->
       <UCard>
         <template #header>
-          <h3 class="text-lg font-medium text-gray-700 dark:text-white">Connected Accounts</h3>
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Connected Accounts</h2>
+            <UBadge variant="subtle" color="primary" class="text-xs">Used for matchmaking</UBadge>
+          </div>
         </template>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Steam Username -->
-          <UFormField label="Steam Username">
-            <UInput v-model="profile.steam_username" placeholder="Enter your Steam username"
-              icon="i-lucide-gamepad-2" />
-          </UFormField>
+          <UFormGroup label="Steam Username" help="Used to link your gaming sessions">
+            <UInput
+              v-model="profile.steam_username"
+              placeholder="e.g. NoScopeNinja"
+              icon="i-lucide-gamepad-2"
+            />
+          </UFormGroup>
 
-          <!-- Discord Username -->
-          <UFormField label="Discord Username">
-            <UInput v-model="profile.discord_username" placeholder="Enter your Discord handle"
-              icon="i-lucide-message-circle" />
-          </UFormField>
+          <UFormGroup label="Discord Username" help="For chat and quick invites">
+            <UInput
+              v-model="profile.discord_username"
+              placeholder="e.g. gamer#1234"
+              icon="i-lucide-discord"
+            />
+          </UFormGroup>
         </div>
       </UCard>
 
       <!-- Save Button -->
       <div class="flex justify-end">
-        <UButton icon="i-lucide-save" @click="saveProfile" :loading="loading" size="md" color="primary">
+        <UButton
+          icon="i-lucide-save"
+          @click="saveProfile"
+          :loading="loading"
+          color="primary"
+          size="lg"
+          class="px-6"
+        >
           Save Changes
         </UButton>
       </div>
