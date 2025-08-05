@@ -10,11 +10,9 @@ const profile = ref({
   avatar_url: ''
 })
 
-const uploadedFile = ref(null)
-const imageUrl = ref('')
 const loading = ref(false)
-
-const { notify } = useNotify()
+const uploadedFile = ref(null)
+const avatarPreview = ref('')
 
 onMounted(async () => {
   const { data, error } = await supabase
@@ -27,54 +25,59 @@ onMounted(async () => {
     profile.value = data
 
     if (profile.value.avatar_url) {
-      const { data: urlData } = await supabase.storage
+      const { data: urlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(profile.value.avatar_url)
 
-      imageUrl.value = urlData?.publicUrl || ''
+      avatarPreview.value = urlData.publicUrl
     }
   }
 })
 
-async function handleFileUpload(file) {
-  if (!file || !user.value?.id) return
-
-  const filePath = `${user.value.id}/${Date.now()}_${file.name}`
-
-  const { error: uploadError } = await supabase.storage
-    .from('avatars')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: true
-    })
-
-  if (uploadError) {
-    notify({
-      title: 'Upload failed',
-      description: uploadError.message,
-      icon: 'i-lucide-x-circle',
-      color: 'error'
-    })
-    return
-  }
-
-  profile.value.avatar_url = filePath
-
-  const { data: urlData } = await supabase.storage
-    .from('avatars')
-    .getPublicUrl(filePath)
-
-  imageUrl.value = urlData?.publicUrl || ''
-}
+const { notify } = useNotify()
 
 async function saveProfile() {
   loading.value = true
+
+  // Upload new file if selected
+  if (uploadedFile.value) {
+    const file = uploadedFile.value
+    const filePath = `${user.value.id}/${Date.now()}_${file.name}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      })
+
+    if (uploadError) {
+      notify({
+        title: 'Upload failed',
+        description: uploadError.message,
+        icon: 'i-lucide-x-circle',
+        color: 'error'
+      })
+      loading.value = false
+      return
+    }
+
+    profile.value.avatar_url = filePath
+
+    const { data: urlData } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath)
+
+    avatarPreview.value = urlData.publicUrl
+  }
+
   const { error } = await supabase
     .from('profiles')
     .upsert({
       id: user.value.id,
       ...profile.value
     })
+
   loading.value = false
 
   if (!error) {
@@ -98,54 +101,89 @@ async function saveProfile() {
 <template>
   <UContainer>
     <div class="space-y-6 max-w-2xl mx-auto py-6">
+      <!-- Title -->
       <div>
         <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">Edit Profile</h2>
         <p class="text-gray-500 text-sm">Update your personal details and connected accounts.</p>
       </div>
 
+      <!-- Personal Info Section -->
       <UCard>
         <template #header>
           <h3 class="text-lg font-medium text-gray-700 dark:text-white">Personal Information</h3>
         </template>
 
-        <div class="space-y-4">
-          <div class="flex items-center gap-4">
-            <UAvatar
-              size="lg"
-              :src="imageUrl || undefined"
-              icon="i-lucide-user"
+        <div class="flex items-center gap-6">
+          <!-- Avatar Preview -->
+          <img
+            v-if="avatarPreview"
+            :src="avatarPreview"
+            alt="Profile Picture"
+            class="w-24 h-24 rounded-full object-cover border"
+          />
+
+          <!-- Name Fields -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
+            <UInput
+              v-model="profile.firstname"
+              label="First Name"
+              placeholder="Enter your first name"
+            />
+            <UInput
+              v-model="profile.lastname"
+              label="Last Name"
+              placeholder="Enter your last name"
             />
           </div>
+        </div>
 
+        <!-- File Upload -->
+        <div class="mt-6">
+          <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">Upload Profile Picture</label>
           <UFileUpload
             v-model="uploadedFile"
             accept="image/*"
-            label="Upload profile picture"
-            description="PNG, JPG, or GIF (max. 2MB)"
-            class="w-full"
-            @change="handleFileUpload($event[0])"
+            :multiple="false"
+            color="primary"
+            variant="area"
+            class="w-full min-h-36"
+            label="Drop your image here"
+            description="PNG, JPG, or WebP (max. 2MB)"
           />
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <UInput v-model="profile.firstname" label="First Name" placeholder="Enter your first name" />
-            <UInput v-model="profile.lastname" label="Last Name" placeholder="Enter your last name" />
-          </div>
         </div>
       </UCard>
 
+      <!-- Gaming Accounts Section -->
       <UCard>
         <template #header>
           <h3 class="text-lg font-medium text-gray-700 dark:text-white">Connected Accounts</h3>
         </template>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UInput v-model="profile.steam_username" label="Steam Username" placeholder="Enter your Steam username" icon="i-lucide-gamepad-2" />
-          <UInput v-model="profile.discord_username" label="Discord Username" placeholder="Enter your Discord handle" icon="i-lucide-message-circle" />
+          <UInput
+            v-model="profile.steam_username"
+            label="Steam Username"
+            placeholder="Enter your Steam username"
+            icon="i-lucide-gamepad-2"
+          />
+          <UInput
+            v-model="profile.discord_username"
+            label="Discord Username"
+            placeholder="Enter your Discord handle"
+            icon="i-lucide-message-circle"
+          />
         </div>
       </UCard>
 
+      <!-- Save Button -->
       <div class="flex justify-end">
-        <UButton icon="i-lucide-save" @click="saveProfile" :loading="loading" size="md" color="primary">
+        <UButton
+          icon="i-lucide-save"
+          @click="saveProfile"
+          :loading="loading"
+          size="md"
+          color="primary"
+        >
           Save Changes
         </UButton>
       </div>
