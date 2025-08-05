@@ -137,6 +137,7 @@ async function saveProfile() {
             <UFileUpload v-model="uploadedFile" accept="image/*" :multiple="false" color="primary" variant="area"
               class="w-full min-h-36" label="Drop your image here" description="PNG, JPG, or WebP (max. 2MB)" />
           </div>
+        </div>
       </UCard>
 
       <!-- Gaming Accounts Section -->
