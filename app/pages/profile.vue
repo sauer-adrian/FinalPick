@@ -115,42 +115,28 @@ async function saveProfile() {
 
         <div class="flex items-center gap-6">
           <!-- Avatar Preview -->
-          <img
-            v-if="avatarPreview"
-            :src="avatarPreview"
-            alt="Profile Picture"
-            class="w-24 h-24 rounded-full object-cover border"
-          />
+          <img v-if="avatarPreview" :src="avatarPreview" alt="Profile Picture"
+            class="w-24 h-24 rounded-full object-cover" />
 
           <!-- Name Fields -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-            <UInput
-              v-model="profile.firstname"
-              label="First Name"
-              placeholder="Enter your first name"
-            />
-            <UInput
-              v-model="profile.lastname"
-              label="Last Name"
-              placeholder="Enter your last name"
-            />
-          </div>
-        </div>
+            <!-- First Name -->
+            <UFormField label="First Name">
+              <UInput v-model="profile.firstname" placeholder="Enter your first name" />
+            </UFormField>
 
-        <!-- File Upload -->
-        <div class="mt-6">
-          <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">Upload Profile Picture</label>
-          <UFileUpload
-            v-model="uploadedFile"
-            accept="image/*"
-            :multiple="false"
-            color="primary"
-            variant="area"
-            class="w-full min-h-36"
-            label="Drop your image here"
-            description="PNG, JPG, or WebP (max. 2MB)"
-          />
-        </div>
+            <!-- Last Name -->
+            <UFormField label="Last Name">
+              <UInput v-model="profile.lastname" placeholder="Enter your last name" />
+            </UFormField>
+          </div>
+
+          <!-- File Upload -->
+          <div class="mt-6">
+            <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">Upload Profile Picture</label>
+            <UFileUpload v-model="uploadedFile" accept="image/*" :multiple="false" color="primary" variant="area"
+              class="w-full min-h-36" label="Drop your image here" description="PNG, JPG, or WebP (max. 2MB)" />
+          </div>
       </UCard>
 
       <!-- Gaming Accounts Section -->
@@ -160,30 +146,23 @@ async function saveProfile() {
         </template>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UInput
-            v-model="profile.steam_username"
-            label="Steam Username"
-            placeholder="Enter your Steam username"
-            icon="i-lucide-gamepad-2"
-          />
-          <UInput
-            v-model="profile.discord_username"
-            label="Discord Username"
-            placeholder="Enter your Discord handle"
-            icon="i-lucide-message-circle"
-          />
+          <!-- Steam Username -->
+          <UFormField label="Steam Username">
+            <UInput v-model="profile.steam_username" placeholder="Enter your Steam username"
+              icon="i-lucide-gamepad-2" />
+          </UFormField>
+
+          <!-- Discord Username -->
+          <UFormField label="Discord Username">
+            <UInput v-model="profile.discord_username" placeholder="Enter your Discord handle"
+              icon="i-lucide-message-circle" />
+          </UFormField>
         </div>
       </UCard>
 
       <!-- Save Button -->
       <div class="flex justify-end">
-        <UButton
-          icon="i-lucide-save"
-          @click="saveProfile"
-          :loading="loading"
-          size="md"
-          color="primary"
-        >
+        <UButton icon="i-lucide-save" @click="saveProfile" :loading="loading" size="md" color="primary">
           Save Changes
         </UButton>
       </div>
