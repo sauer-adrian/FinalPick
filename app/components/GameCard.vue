@@ -7,7 +7,7 @@ defineProps({
 </script>
 
 <template>
-  <UCard ui="{ header: 'p-0' }" class="h-full flex flex-col">
+  <UCard :ui="{ header: 'p-0 sm:p-0' }" class="h-full flex flex-col">
     <template #header>
       <div class="flex justify-between items-start">
         <div class="flex items-center gap-4">
