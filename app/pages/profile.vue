@@ -128,7 +128,7 @@ async function saveProfile() {
           <!-- Avatar + names in one row -->
           <div class="flex items-start gap-6">
             <!-- Avatar is now the uploader -->
-            <<!-- Avatar is the uploader + floating pencil button (not clipped) -->
+            <!-- Avatar is the uploader + floating pencil button (not clipped) -->
               <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false"
                 :dropzone="false" :interactive="false">
                 <div class="relative inline-block">
