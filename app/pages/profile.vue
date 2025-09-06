@@ -129,39 +129,40 @@ async function saveProfile() {
           <div class="flex items-start gap-6">
             <!-- Avatar is now the uploader -->
             <!-- Avatar is the uploader + floating pencil button (not clipped) -->
-              <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false"
-                :dropzone="false" :interactive="false">
-                <div class="relative inline-block">
-                  <!-- click anywhere on avatar to choose file -->
-                  <button type="button" @click="open()"
-                    class="rounded-full ring-1 ring-white/10 hover:ring-primary/40 transition focus:outline-none"
-                    aria-label="Change profile picture" title="Change profile picture">
-                    <UAvatar size="xl" :src="avatarPreview || undefined" icon="i-lucide-image"
-                      :ui="{ root: 'rounded-full', image: 'object-cover' }" />
-                  </button>
+            <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false"
+              :dropzone="false" :interactive="false">
+              <div class="relative inline-block">
+                <!-- click anywhere on avatar to choose file -->
+                <button type="button" @click="open()"
+                  class="rounded-full ring-1 ring-white/10 hover:ring-primary/40 transition focus:outline-none"
+                  aria-label="Change profile picture" title="Change profile picture">
+                  <UAvatar size="3xl" :src="avatarPreview || undefined" icon="i-lucide-image"
+                    :ui="{ root: 'rounded-full', image: 'object-cover' }" />
+                </button>
 
-                  <!-- floating pencil: sibling -> not clipped by avatar crop -->
-                  <UButton icon="i-lucide-pencil" size="xs" color="primary" variant="solid" @click.stop="open()"
-                    :ui="{ base: 'rounded-full p-1' }" class="absolute -bottom-1 -right-1 shadow"
-                    aria-label="Upload new picture" title="Upload new picture" />
-                </div>
+                <!-- floating pencil: sibling -> not clipped by avatar crop -->
+                <UButton icon="i-lucide-pencil" size="sm" color="primary" variant="solid" @click.stop="open()"
+                  :ui="{ base: 'rounded-full p-1.5' }" class="absolute -bottom-2 -right-2 shadow"
+                  aria-label="Upload new picture" title="Upload new picture" />
 
-                <!-- Optional: remove picked (unsaved) file -->
-                <UButton v-if="uploadedFile" size="xs" variant="link" color="neutral" class="p-0 mt-1" label="Remove"
-                  @click="removeFile()" />
-              </UFileUpload>
-
-
-              <!-- Name fields -->
-              <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <UFormField label="First Name">
-                  <UInput v-model="profile.firstname" placeholder="Enter your first name" />
-                </UFormField>
-
-                <UFormField label="Last Name">
-                  <UInput v-model="profile.lastname" placeholder="Enter your last name" />
-                </UFormField>
               </div>
+
+              <!-- Optional: remove picked (unsaved) file -->
+              <UButton v-if="uploadedFile" size="xs" variant="link" color="neutral" class="p-0 mt-1" label="Remove"
+                @click="removeFile()" />
+            </UFileUpload>
+
+
+            <!-- Name fields -->
+            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <UFormField label="First Name">
+                <UInput v-model="profile.firstname" placeholder="Enter your first name" />
+              </UFormField>
+
+              <UFormField label="Last Name">
+                <UInput v-model="profile.lastname" placeholder="Enter your last name" />
+              </UFormField>
+            </div>
           </div>
         </div>
       </UCard>
