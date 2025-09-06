@@ -52,7 +52,7 @@ watchEffect(async () => {
           <UAvatar
             :src="avatarUrl || undefined"
             alt="Profile"
-            size="sm"
+            size="md"
             class="cursor-pointer"
           />
         </NuxtLink>
@@ -61,9 +61,9 @@ watchEffect(async () => {
         <UButton
           icon="i-lucide-log-out"
           @click="logout"
-          size="sm"
+          size="md"
           color="error"
-          variant="soft"
+          variant="ghost"
           class="cursor-pointer"
         />
       </div>
