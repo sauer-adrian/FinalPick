@@ -130,25 +130,26 @@ async function saveProfile() {
             <!-- Avatar is now the uploader -->
             <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false"
               :dropzone="false" :interactive="false">
-              <<button type="button" @click="open()"
-                class="relative w-24 h-24 rounded-full overflow-hidden ring-1 ring-white/10 hover:ring-primary/40 transition"
-                aria-label="Change profile picture" title="Change profile picture">
-                <img v-if="avatarPreview" :src="avatarPreview" alt="Profile Picture"
-                  class="w-full h-full object-cover" />
-                <div v-else class="w-full h-full grid place-items-center bg-gray-100 dark:bg-gray-800">
-                  <UIcon name="i-lucide-image" class="size-6 text-gray-400" />
-                </div>
+              <button type="button" @click="open()" class="relative w-24 h-24 hover:ring-primary/40 transition">
+                <!-- circular crop lives here -->
+                <span class="absolute inset-0 rounded-full overflow-hidden ring-1 ring-white/10 block">
+                  <img v-if="avatarPreview" :src="avatarPreview" class="w-full h-full object-cover" />
+                  <div v-else class="w-full h-full grid place-items-center bg-gray-100 dark:bg-gray-800">
+                    <UIcon name="i-lucide-image" class="size-6 text-gray-400" />
+                  </div>
+                </span>
 
-                <!-- round chip (no clipping) -->
-                <span class="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white
-           grid place-items-center backdrop-blur">
+                <!-- chip can overflow without being clipped -->
+                <span class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full
+           grid place-items-center text-white
+           bg-primary-600 dark:bg-primary-500 shadow">
                   <UIcon name="i-lucide-pencil" class="size-3" />
                 </span>
-                </button>
+              </button>
 
-                <!-- Optional remove if a new file was picked -->
-                <UButton v-if="uploadedFile" size="xs" variant="link" color="error" class="p-0 mt-1" label="Remove"
-                  @click="removeFile()" />
+              <!-- Optional remove if a new file was picked -->
+              <UButton v-if="uploadedFile" size="xs" variant="link" color="error" class="p-0 mt-1" label="Remove"
+                @click="removeFile()" />
             </UFileUpload>
 
             <!-- Name fields -->
