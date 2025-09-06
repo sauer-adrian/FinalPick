@@ -11,25 +11,24 @@ defineProps({
     <template #header>
       <div class="flex justify-between items-start">
         <div class="flex items-center gap-4">
-          <img :src="game.cover_url" alt="Cover" class="w-16 h-16 object-cover rounded" />
-          <h3 class="text-lg font-semibold">{{ game.name }}</h3>
+          <img :src="game.cover_url" alt="Cover" class="object-cover" />
         </div>
-        <button @click="onDelete(game)"
-          class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition ml-2 cursor-pointer hover:bg-red-500/10 p-1 rounded"
-          title="Delete game" aria-label="Delete game">
-          <UIcon name="i-lucide-trash" class="size-4" />
-        </button>
       </div>
     </template>
 
     <div class="flex-1">
+      <h3 class="text-lg font-semibold">{{ game.name }}</h3>
       <div class="h-32 overflow-hidden text-ellipsis line-clamp-5">
         <p class="text-sm text-gray-600 dark:text-gray-400">
           {{ game.summary }}
         </p>
       </div>
     </div>
-
+    <button @click="onDelete(game)"
+      class="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition ml-2 cursor-pointer hover:bg-red-500/10 p-1 rounded"
+      title="Delete game" aria-label="Delete game">
+      <UIcon name="i-lucide-trash" class="size-4" />
+    </button>
     <template #footer>
       <div class="flex items-center justify-center gap-3 rounded-full px-4 py-1 w-fit mx-auto
            border bg-gray-100 text-gray-900 border-gray-200
