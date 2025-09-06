@@ -41,25 +41,6 @@ const fields = computed(() => ([
   }
 ]))
 
-// Optional: OAuth providers via Supabase
-type OAuthProvider = 'google' | 'github'
-async function oauth(provider: OAuthProvider) {
-  try {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/` } // adjust if you have a callback page
-    })
-    if (error) throw error
-  } catch (err: any) {
-    toast.add({ title: 'OAuth error', description: err.message, color: 'error' })
-  }
-}
-
-const providers = [
-  { label: 'Google', icon: 'i-simple-icons-google', onClick: () => oauth('google') },
-  { label: 'GitHub', icon: 'i-simple-icons-github', onClick:  () => oauth('github') }
-]
-
 // Loading + inline error message (shown in #validation slot)
 const loading = ref(false)
 const inlineError = ref<string>('')
@@ -152,7 +133,6 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
         ref="authForm"
         :schema="schema"
         :fields="fields"
-        :providers="providers"
         :loading="loading"
         :submit="{ label: mode === 'login' ? 'Continue' : 'Create account', block: true }"
         :title="mode === 'login' ? 'Welcome back!' : 'Create your account'"
