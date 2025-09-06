@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@nuxt/ui": "^3.3.0",
+    "@nuxt/ui": "^4.0.0-alpha.1",
     "@nuxtjs/supabase": "^1.6.0",
     "@supabase/supabase-js": "^2.53.0",
     "@tailwindcss/line-clamp": "^0.4.4",

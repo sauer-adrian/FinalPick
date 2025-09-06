@@ -1,160 +1,211 @@
+<!-- pages/login.vue -->
 <script setup lang="ts">
-definePageMeta({
-  layout: false,
-})
+definePageMeta({ layout: false })
 
-import type { TabsItem } from '@nuxt/ui'
+import * as z from 'zod'
+import type { FormSubmitEvent } from '@nuxt/ui'
 
 const supabase = useSupabaseClient()
 const router = useRouter()
+const toast = useToast()
 
-const emailLogin = ref('')
-const passwordLogin = ref('')
-const emailSignup = ref('')
-const passwordSignup = ref('')
+// Toggle between "login" and "signup"
+const mode = ref<'login' | 'signup'>('login')
 
-const loadingLogin = ref(false)
-const loadingSignup = ref(false)
+// Zod schemas (stricter for signup)
+const loginSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(1, 'Required')
+})
+const signupSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'Must be at least 8 characters')
+})
+const schema = computed(() => (mode.value === 'login' ? loginSchema : signupSchema))
 
-const errorLogin = ref('')
-const messageLogin = ref('')
-
-const errorSignup = ref('')
-const messageSignup = ref('')
-
-async function submitLogin() {
-  loadingLogin.value = true
-  errorLogin.value = ''
-  messageLogin.value = ''
-
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: emailLogin.value,
-    password: passwordLogin.value
-  })
-
-  loadingLogin.value = false
-
-  if (error) {
-    errorLogin.value = error.message
-    return
-  }
-
-  messageLogin.value = 'Logged in successfully.'
-
-  // ✅ Insert profile if not existing
-  const userId = data.user?.id
-  if (userId) {
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('id', userId)
-      .single()
-
-    if (!profile && !profileError) {
-      // Already exists (safe fallback)
-    } else if (profileError?.code === 'PGRST116') {
-      // ✅ Not found: insert blank profile
-      await supabase.from('profiles').insert({
-        id: userId,
-        firstname: '',
-        lastname: '',
-        steam_username: '',
-        discord_username: ''
-      })
-    }
-  }
-
-  router.push('/')
-}
-
-
-
-async function submitSignup() {
-  loadingSignup.value = true
-  errorSignup.value = ''
-  messageSignup.value = ''
-
-  const { error } = await supabase.auth.signUp({
-    email: emailSignup.value,
-    password: passwordSignup.value
-  })
-
-  loadingSignup.value = false
-
-  if (error) {
-    errorSignup.value = error.message
-  } else {
-    messageSignup.value = 'Signup successful! Check your email to confirm.'
-  }
-}
-
-const tabItems: TabsItem[] = [
+// Fields adjust with mode if you want to vary labels/placeholders
+const fields = computed(() => ([
   {
-    label: 'Login',
-    icon: 'i-lucide-log-in',
-    slot: 'login',
+    name: 'email',
+    type: 'text' as const,
+    label: 'Email',
+    placeholder: 'Enter your email',
+    required: true
   },
   {
-    label: 'Sign Up',
-    icon: 'i-lucide-user-plus',
-    slot: 'signup',
+    name: 'password',
+    label: 'Password',
+    type: 'password' as const,
+    placeholder: mode.value === 'login' ? 'Enter your password' : 'Create a password',
+    required: true
   }
+]))
+
+// Optional: OAuth providers via Supabase
+type OAuthProvider = 'google' | 'github'
+async function oauth(provider: OAuthProvider) {
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/` } // adjust if you have a callback page
+    })
+    if (error) throw error
+  } catch (err: any) {
+    toast.add({ title: 'OAuth error', description: err.message, color: 'error' })
+  }
+}
+
+const providers = [
+  { label: 'Google', icon: 'i-simple-icons-google', onClick: () => oauth('google') },
+  { label: 'GitHub', icon: 'i-simple-icons-github', onClick:  () => oauth('github') }
 ]
+
+// Loading + inline error message (shown in #validation slot)
+const loading = ref(false)
+const inlineError = ref<string>('')
+
+// Access form state (so forgot-password can read typed email)
+const authForm = useTemplateRef('authForm')
+
+// Forgot password (uses typed email from the form)
+async function onForgotPassword() {
+  const email = authForm.value?.state?.email as string | undefined
+  if (!email) {
+    toast.add({ title: 'Enter your email first', description: 'Type your email above, then click Forgot password.', color: 'warning' })
+    return
+  }
+  try {
+    loading.value = true
+    inlineError.value = ''
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/account/reset-password`
+    })
+    if (error) throw error
+    toast.add({ title: 'Reset email sent', description: 'Check your inbox for the reset link.' })
+  } catch (err: any) {
+    inlineError.value = err.message || 'Failed to send reset email.'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Ensure profiles row exists
+async function ensureProfile(userId: string) {
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .single()
+
+  // If not found (PGRST116) insert a blank profile
+  if (profileError?.code === 'PGRST116') {
+    await supabase.from('profiles').insert({
+      id: userId,
+      firstname: '',
+      lastname: '',
+      steam_username: '',
+      discord_username: ''
+    })
+  }
+}
+
+// Handle submit for both modes
+async function onSubmit(payload: FormSubmitEvent<any>) {
+  inlineError.value = ''
+  loading.value = true
+  try {
+    const { email, password } = payload.data
+
+    if (mode.value === 'login') {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
+      const userId = data.user?.id
+      if (userId) await ensureProfile(userId)
+
+      toast.add({ title: 'Logged in', description: 'Welcome back!' })
+      router.push('/')
+      return
+    }
+
+    // Sign up
+    const { error } = await supabase.auth.signUp({ email, password })
+    if (error) throw error
+
+    toast.add({
+      title: 'Check your email',
+      description: 'We sent you a confirmation link to finish creating your account.'
+    })
+    // Optionally switch to login mode after signup
+    mode.value = 'login'
+  } catch (err: any) {
+    inlineError.value = err.message || 'Something went wrong.'
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
-  <ClientOnly>
-    <UContainer class="min-h-screen flex items-center justify-center">
-      <UCard class="w-full max-w-md p-6">
-        <template #header>
-          <div class="flex items-center justify-center space-x-3">
-            <img src="/logo.png" alt="Logo" class="h-10 w-10" />
-            <h2 class="text-3xl font-bold">FinalPick</h2>
+  <div class="flex min-h-screen items-center justify-center p-4">
+    <UPageCard class="w-full max-w-md">
+      <UAuthForm
+        ref="authForm"
+        :schema="schema"
+        :fields="fields"
+        :providers="providers"
+        :loading="loading"
+        :submit="{ label: mode === 'login' ? 'Continue' : 'Create account', block: true }"
+        :title="mode === 'login' ? 'Welcome back!' : 'Create your account'"
+        :icon="mode === 'login' ? 'i-lucide-lock' : 'i-lucide-user-plus'"
+        @submit="onSubmit"
+      >
+        <template #description>
+          <div class="space-y-1">
+            <p v-if="mode === 'login'">
+              Enter your credentials to access your account.
+            </p>
+            <p v-else>
+              Start your FinalPick journey in seconds.
+            </p>
+            <p class="mt-2">
+              <ULink
+                as="button"
+                class="text-primary font-medium"
+                @click="mode = mode === 'login' ? 'signup' : 'login'"
+              >
+                {{ mode === 'login' ? "Don't have an account? Sign up" : "Already have an account? Log in" }}
+              </ULink>
+            </p>
           </div>
         </template>
 
-        <UTabs :items="tabItems" class="w-full" variant="pill" size="lg">
-          <!-- Login Tab -->
-          <template #login>
-            <form class="space-y-4" @submit.prevent="submitLogin">
-              <UInput v-model="emailLogin" type="email" placeholder="Email" size="lg" class="w-full text-base"
-                required />
-              <UInput v-model="passwordLogin" type="password" placeholder="Password" size="lg" class="w-full text-base"
-                required />
-              <UButton :loading="loadingLogin" type="submit" size="lg" class="w-full justify-center">
-                Login
-              </UButton>
+        <!-- Inline error area -->
+        <template #validation>
+          <UAlert
+            v-if="inlineError"
+            color="error"
+            icon="i-lucide-info"
+            :title="inlineError"
+          />
+        </template>
 
-              <div v-if="errorLogin" class="text-red-500 text-center">
-                {{ errorLogin }}
-              </div>
-              <div v-if="messageLogin" class="text-green-600 text-center">
-                {{ messageLogin }}
-              </div>
-            </form>
-          </template>
-
-          <!-- Signup Tab -->
-          <template #signup>
-            <form class="space-y-4" @submit.prevent="submitSignup">
-              <UInput v-model="emailSignup" type="email" placeholder="Email" size="lg" class="w-full text-base"
-                required />
-              <UInput v-model="passwordSignup" type="password" placeholder="Password" size="lg" class="w-full text-base"
-                required />
-              <UButton :loading="loadingSignup" type="submit" size="lg" class="w-full justify-center">
-                Sign Up
-              </UButton>
-
-              <div v-if="errorSignup" class="text-red-500 text-center">
-                {{ errorSignup }}
-              </div>
-              <div v-if="messageSignup" class="text-green-600 text-center">
-                {{ messageSignup }}
-              </div>
-            </form>
-          </template>
-        </UTabs>
-      </UCard>
-    </UContainer>
-  </ClientOnly>
+        <!-- Footer: terms + forgot password -->
+        <template #footer>
+          <div class="flex flex-col items-center gap-2">
+            <button
+              type="button"
+              class="text-primary font-medium"
+              @click="onForgotPassword"
+            >
+              Forgot password?
+            </button>
+            <p class="text-muted">
+              By continuing, you agree to our
+              <ULink to="/legal/terms" class="text-primary font-medium">Terms of Service</ULink>.
+            </p>
+          </div>
+        </template>
+      </UAuthForm>
+    </UPageCard>
+  </div>
 </template>
