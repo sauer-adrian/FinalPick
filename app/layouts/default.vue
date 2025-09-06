@@ -6,10 +6,32 @@ async function logout() {
   await supabase.auth.signOut()
   await navigateTo('/login')
 }
+
+// Load avatar URL if available
+const avatarUrl = ref<string | null>(null)
+
+watchEffect(async () => {
+  if (user.value?.id) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('avatar_url')
+      .eq('id', user.value.id)
+      .single()
+
+    if (!error && data?.avatar_url) {
+      const { data: urlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(data.avatar_url)
+
+      avatarUrl.value = urlData.publicUrl
+    } else {
+      avatarUrl.value = null
+    }
+  }
+})
 </script>
 
 <template>
-
   <div class="min-h-screen">
     <!-- Navigation -->
     <nav
@@ -22,8 +44,28 @@ async function logout() {
 
       <!-- Right: Buttons -->
       <div class="flex items-center space-x-4">
-        <UButton icon="i-lucide-user" @click="() => navigateTo('/profile')" size="sm" color="primary" variant="soft" class="cursor-pointer" />
-        <UButton icon="i-lucide-log-out" @click="logout" size="sm" color="error" variant="soft" class="cursor-pointer"/>
+        <!-- Color mode switch -->
+        <UColorModeButton />
+
+        <!-- Profile avatar (clickable) -->
+        <NuxtLink to="/profile">
+          <UAvatar
+            :src="avatarUrl || undefined"
+            alt="Profile"
+            size="sm"
+            class="cursor-pointer"
+          />
+        </NuxtLink>
+
+        <!-- Logout -->
+        <UButton
+          icon="i-lucide-log-out"
+          @click="logout"
+          size="sm"
+          color="error"
+          variant="soft"
+          class="cursor-pointer"
+        />
       </div>
     </nav>
 
