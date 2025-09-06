@@ -35,12 +35,11 @@ defineProps({
       <div class="flex items-center justify-center gap-3 rounded-full px-4 py-1 w-fit mx-auto
                border bg-gray-100 text-gray-900 border-gray-200
                dark:bg-gray-800 dark:text-white dark:border-gray-700">
-        <UButton size="sm" variant="soft" color="success" icon="i-lucide-arrow-up" @click="onVote(game.id, 1)"
+        <UButton size="sm" variant="link" color="success" icon="i-lucide-arrow-up" @click="onVote(game.id, 1)"
           :class="{ 'ring-2 ring-success-500': game.userVote === 1 }" />
         <span class="font-medium text-sm">{{ game.voteCount }}</span>
-        <UButton size="sm" variant="soft" color="error" icon="i-lucide-arrow-down" @click="onVote(game.id, -1)"
+        <UButton size="sm" variant="link" color="error" icon="i-lucide-arrow-down" @click="onVote(game.id, -1)"
           :class="{ 'ring-2 ring-error-500': game.userVote === -1 }" />
-        <UIcon name="i-lucide-arrow-down" class="size-4" />
       </div>
     </template>
   </UCard>
