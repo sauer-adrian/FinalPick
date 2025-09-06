@@ -128,50 +128,27 @@ async function saveProfile() {
           <!-- Avatar + names in one row -->
           <div class="flex items-start gap-6">
             <!-- Avatar is now the uploader -->
-            <UFileUpload
-              v-slot="{ open, removeFile }"
-              v-model="uploadedFile"
-              accept="image/*"
-              :multiple="false"
-              :dropzone="false"
-              :interactive="false"
-            >
-              <button
-                type="button"
-                @click="open()"
+            <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false"
+              :dropzone="false" :interactive="false">
+              <<button type="button" @click="open()"
                 class="relative w-24 h-24 rounded-full overflow-hidden ring-1 ring-white/10 hover:ring-primary/40 transition"
-                aria-label="Change profile picture"
-                title="Change profile picture"
-              >
-                <img
-                  v-if="avatarPreview"
-                  :src="avatarPreview"
-                  alt="Profile Picture"
-                  class="w-full h-full object-cover"
-                />
+                aria-label="Change profile picture" title="Change profile picture">
+                <img v-if="avatarPreview" :src="avatarPreview" alt="Profile Picture"
+                  class="w-full h-full object-cover" />
                 <div v-else class="w-full h-full grid place-items-center bg-gray-100 dark:bg-gray-800">
                   <UIcon name="i-lucide-image" class="size-6 text-gray-400" />
                 </div>
 
-                <!-- small camera/edit badge -->
-                <span
-                  class="absolute bottom-0 right-0 m-1 px-1.5 py-0.5 rounded-md text-[10px]
-                         bg-black/50 text-white backdrop-blur"
-                >
-                  Edit
+                <!-- round chip (no clipping) -->
+                <span class="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white
+           grid place-items-center backdrop-blur">
+                  <UIcon name="i-lucide-pencil" class="size-3" />
                 </span>
-              </button>
+                </button>
 
-              <!-- Optional remove if a new file was picked -->
-              <UButton
-                v-if="uploadedFile"
-                size="xs"
-                variant="link"
-                color="error"
-                class="p-0 mt-1"
-                label="Remove"
-                @click="removeFile()"
-              />
+                <!-- Optional remove if a new file was picked -->
+                <UButton v-if="uploadedFile" size="xs" variant="link" color="error" class="p-0 mt-1" label="Remove"
+                  @click="removeFile()" />
             </UFileUpload>
 
             <!-- Name fields -->
@@ -196,11 +173,13 @@ async function saveProfile() {
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <UFormField label="Steam Username">
-            <UInput v-model="profile.steam_username" placeholder="Enter your Steam username" icon="i-lucide-gamepad-2" />
+            <UInput v-model="profile.steam_username" placeholder="Enter your Steam username"
+              icon="i-lucide-gamepad-2" />
           </UFormField>
 
           <UFormField label="Discord Username">
-            <UInput v-model="profile.discord_username" placeholder="Enter your Discord handle" icon="i-lucide-message-circle" />
+            <UInput v-model="profile.discord_username" placeholder="Enter your Discord handle"
+              icon="i-lucide-message-circle" />
           </UFormField>
         </div>
       </UCard>
