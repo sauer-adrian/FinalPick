@@ -318,7 +318,7 @@ function confirmDeleteGame(game) {
     <TransitionGroup
       name="list"
       tag="div"
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 items-stretch"
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 items-stretch"
     >
       <div v-for="game in games" :key="game.id" class="h-full">
         <GameCard :game="game" :onVote="voteForGame" :onDelete="confirmDeleteGame" />
