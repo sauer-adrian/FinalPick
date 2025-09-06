@@ -7,12 +7,11 @@ defineProps({
 </script>
 
 <template>
-  <!-- make the whole card a hover group -->
   <UCard
-    class="group h-full flex flex-col overflow-hidden"
+    class="h-full flex flex-col overflow-hidden"
     :ui="{ header: 'p-0 sm:p-0' }"
   >
-    <!-- HEADER: image + hover delete -->
+    <!-- HEADER: image + delete -->
     <template #header>
       <div class="relative">
         <img
@@ -21,15 +20,15 @@ defineProps({
           class="w-full h-40 sm:h-48 object-cover"
         />
 
-        <!-- delete button: only visible on card hover -->
+        <!-- Delete button: always visible -->
         <button
           @click="onDelete(game)"
-          class="absolute top-2 right-2 opacity-0 pointer-events-none
-                 group-hover:opacity-100 group-hover:pointer-events-auto
-                 transition-opacity duration-150
-                 text-gray-300 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400
+          class="absolute top-2 right-2
+                 text-gray-300 hover:text-red-500
+                 dark:text-gray-400 dark:hover:text-red-400
                  bg-black/30 dark:bg-black/40 hover:bg-black/20
-                 p-1.5 rounded-full backdrop-blur"
+                 p-1.5 rounded-full backdrop-blur
+                 transition-colors duration-150"
           title="Delete game" aria-label="Delete game"
         >
           <UIcon name="i-lucide-x" class="size-4" />
@@ -54,6 +53,7 @@ defineProps({
                border bg-gray-100 text-gray-900 border-gray-200
                dark:bg-gray-800 dark:text-white dark:border-gray-700"
       >
+        <!-- Upvote -->
         <UButton
           size="sm"
           :variant="game.userVote === 1 ? 'solid' : 'ghost'"
@@ -65,6 +65,7 @@ defineProps({
           :class="game.userVote === 1 ? 'scale-95' : 'hover:scale-105'"
           title="Upvote"
         />
+        <!-- Count -->
         <span
           class="font-medium text-sm transition-colors"
           :class="{
@@ -75,6 +76,7 @@ defineProps({
         >
           {{ game.voteCount }}
         </span>
+        <!-- Downvote -->
         <UButton
           size="sm"
           :variant="game.userVote === -1 ? 'solid' : 'ghost'"
