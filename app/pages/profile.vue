@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
@@ -11,24 +11,33 @@ const profile = ref({
 })
 
 const loading = ref(false)
-const uploadedFile = ref(null)
+const uploadedFile = ref<File | null>(null)
 const avatarPreview = ref('')
 
+// preview blob URL cleanup
+let blobUrl = null
+function setPreviewFromFile(file) {
+  if (blobUrl) URL.revokeObjectURL(blobUrl)
+  blobUrl = URL.createObjectURL(file)
+  avatarPreview.value = blobUrl
+}
+
+watch(uploadedFile, (f) => { if (f) setPreviewFromFile(f) })
+onBeforeUnmount(() => { if (blobUrl) URL.revokeObjectURL(blobUrl) })
+
 onMounted(async () => {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.value.id)
     .single()
 
-  if (!error && data) {
+  if (data) {
     profile.value = data
-
     if (profile.value.avatar_url) {
       const { data: urlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(profile.value.avatar_url)
-
       avatarPreview.value = urlData.publicUrl
     }
   }
@@ -118,31 +127,63 @@ async function saveProfile() {
         <div class="space-y-6">
           <!-- Avatar + names in one row -->
           <div class="flex items-start gap-6">
-            <!-- Avatar -->
-            <img v-if="avatarPreview" :src="avatarPreview" alt="Profile Picture"
-              class="w-24 h-24 rounded-full object-cover" />
+            <!-- Avatar is now the uploader -->
+            <UFileUpload
+              v-slot="{ open, removeFile }"
+              v-model="uploadedFile"
+              accept="image/*"
+              :multiple="false"
+              :dropzone="false"
+              :interactive="false"
+            >
+              <button
+                type="button"
+                @click="open()"
+                class="relative w-24 h-24 rounded-full overflow-hidden ring-1 ring-white/10 hover:ring-primary/40 transition"
+                aria-label="Change profile picture"
+                title="Change profile picture"
+              >
+                <img
+                  v-if="avatarPreview"
+                  :src="avatarPreview"
+                  alt="Profile Picture"
+                  class="w-full h-full object-cover"
+                />
+                <div v-else class="w-full h-full grid place-items-center bg-gray-100 dark:bg-gray-800">
+                  <UIcon name="i-lucide-image" class="size-6 text-gray-400" />
+                </div>
+
+                <!-- small camera/edit badge -->
+                <span
+                  class="absolute bottom-0 right-0 m-1 px-1.5 py-0.5 rounded-md text-[10px]
+                         bg-black/50 text-white backdrop-blur"
+                >
+                  Edit
+                </span>
+              </button>
+
+              <!-- Optional remove if a new file was picked -->
+              <UButton
+                v-if="uploadedFile"
+                size="xs"
+                variant="link"
+                color="error"
+                class="p-0 mt-1"
+                label="Remove"
+                @click="removeFile()"
+              />
+            </UFileUpload>
 
             <!-- Name fields -->
             <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- First Name -->
               <UFormField label="First Name">
                 <UInput v-model="profile.firstname" placeholder="Enter your first name" />
               </UFormField>
 
-              <!-- Last Name -->
               <UFormField label="Last Name">
                 <UInput v-model="profile.lastname" placeholder="Enter your last name" />
               </UFormField>
             </div>
-          </div>
-
-          <!-- File upload section -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">
-              Upload Profile Picture
-            </label>
-            <UFileUpload v-model="uploadedFile" accept="image/*" :multiple="false" color="primary" variant="area"
-              class="w-full min-h-36" label="Drop your image here" description="PNG, JPG, or WebP (max. 2 MB)" />
           </div>
         </div>
       </UCard>
@@ -154,16 +195,12 @@ async function saveProfile() {
         </template>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Steam Username -->
           <UFormField label="Steam Username">
-            <UInput v-model="profile.steam_username" placeholder="Enter your Steam username"
-              icon="i-lucide-gamepad-2" />
+            <UInput v-model="profile.steam_username" placeholder="Enter your Steam username" icon="i-lucide-gamepad-2" />
           </UFormField>
 
-          <!-- Discord Username -->
           <UFormField label="Discord Username">
-            <UInput v-model="profile.discord_username" placeholder="Enter your Discord handle"
-              icon="i-lucide-message-circle" />
+            <UInput v-model="profile.discord_username" placeholder="Enter your Discord handle" icon="i-lucide-message-circle" />
           </UFormField>
         </div>
       </UCard>
