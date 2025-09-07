@@ -44,7 +44,6 @@ const displayName = computed(() => {
   // fallback: email local part or generic
   return user.value?.email?.split('@')[0] || 'Profile'
 })
-const displayDescription = computed(() => user.value?.email || undefined)
 </script>
 
 <template>
@@ -59,7 +58,7 @@ const displayDescription = computed(() => user.value?.email || undefined)
           <img
             src="/logo.png"
             alt="FinalPick logo"
-            class="w-7 h-7 rounded-md ring-1 ring-black/5 dark:ring-white/10 group-hover:opacity-95 transition-opacity"
+            class="w-7 h-7 rounded-md group-hover:opacity-95 transition-opacity"
           />
           <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:opacity-90 transition-opacity">
             FinalPick
@@ -77,7 +76,6 @@ const displayDescription = computed(() => user.value?.email || undefined)
           <UUser
             to="/profile"
             :name="displayName"
-            :description="displayDescription"
             :avatar="{ src: avatarUrl || undefined, alt: displayName }"
             size="md"
             class="cursor-pointer"
