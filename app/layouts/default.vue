@@ -29,6 +29,16 @@ watchEffect(async () => {
     }
   }
 })
+
+// Useful display fields
+const displayName = computed(() =>
+  user.value?.user_metadata?.full_name ||
+  user.value?.email?.split('@')[0] ||
+  'Profile'
+)
+const displayDescription = computed(() =>
+  user.value?.email || undefined
+)
 </script>
 
 <template>
@@ -47,25 +57,13 @@ watchEffect(async () => {
         <!-- Color mode switch -->
         <UColorModeButton />
 
-        <!-- Profile avatar (clickable) -->
-        <NuxtLink to="/profile">
-          <UAvatar
-            :src="avatarUrl || undefined"
-            alt="Profile"
-            size="md"
-            class="cursor-pointer"
-          />
-        </NuxtLink>
+        <!-- Profile user (clickable) -->
+        <UUser :to="'/profile'" :name="displayName" :description="displayDescription"
+          :avatar="{ src: avatarUrl || undefined, alt: 'Profile' }" size="md" class="cursor-pointer" />
 
         <!-- Logout -->
-        <UButton
-          icon="i-lucide-log-out"
-          @click="logout"
-          size="md"
-          color="error"
-          variant="ghost"
-          class="cursor-pointer"
-        />
+        <UButton icon="i-lucide-log-out" @click="logout" size="md" color="error" variant="ghost"
+          class="cursor-pointer" />
       </div>
     </nav>
 
