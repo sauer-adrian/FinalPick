@@ -7,38 +7,44 @@ async function logout() {
   await navigateTo('/login')
 }
 
-// Load avatar URL if available
+// Load avatar + names if available
 const avatarUrl = ref<string | null>(null)
+const firstName = ref<string | null>(null)
+const lastName = ref<string | null>(null)
 
 watchEffect(async () => {
   if (user.value?.id) {
     const { data, error } = await supabase
       .from('profiles')
-      .select('avatar_url')
+      .select('avatar_url, firstname, lastname')
       .eq('id', user.value.id)
       .single()
 
-    if (!error && data?.avatar_url) {
+    if (!error && data) {
       const { data: urlData } = supabase.storage
         .from('avatars')
-        .getPublicUrl(data.avatar_url)
+        .getPublicUrl(data.avatar_url ?? '')
 
-      avatarUrl.value = urlData.publicUrl
+      avatarUrl.value = data.avatar_url ? urlData.publicUrl : null
+      firstName.value = data.firstname
+      lastName.value = data.lastname
     } else {
       avatarUrl.value = null
+      firstName.value = null
+      lastName.value = null
     }
   }
 })
 
-// Useful display fields
-const displayName = computed(() =>
-  user.value?.user_metadata?.full_name ||
-  user.value?.email?.split('@')[0] ||
-  'Profile'
-)
-const displayDescription = computed(() =>
-  user.value?.email || undefined
-)
+// Display fields
+const displayName = computed(() => {
+  const fn = firstName.value?.trim()
+  const ln = lastName.value?.trim()
+  if (fn || ln) return [fn, ln].filter(Boolean).join(' ')
+  // fallback: email local part or generic
+  return user.value?.email?.split('@')[0] || 'Profile'
+})
+const displayDescription = computed(() => user.value?.email || undefined)
 </script>
 
 <template>
@@ -54,20 +60,15 @@ const displayDescription = computed(() =>
 
       <!-- Right: Buttons -->
       <div class="flex items-center space-x-4">
-        <!-- Color mode switch -->
         <UColorModeButton />
 
-        <!-- Profile user (clickable) -->
-        <UUser :to="'/profile'" :name="displayName" :description="displayDescription"
-          :avatar="{ src: avatarUrl || undefined, alt: 'Profile' }" size="md" class="cursor-pointer" />
+        <!-- User (clickable -> /profile) -->
+        <UUser to="/profile" :name="displayName" :description="displayDescription"
+          :avatar="{ src: avatarUrl || undefined, alt: displayName }" size="md" class="cursor-pointer" />
 
-        <!-- Logout -->
-        <UButton icon="i-lucide-log-out" @click="logout" size="md" color="error" variant="ghost"
-          class="cursor-pointer" />
       </div>
     </nav>
 
-    <!-- Page content -->
     <main class="p-4">
       <slot />
     </main>
