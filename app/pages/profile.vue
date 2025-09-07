@@ -229,100 +229,78 @@ onMounted(() => {
 
 <template>
   <ClientOnly>
-    <UContainer>
-      <div class="max-w-2xl mx-auto py-6 space-y-6" :aria-busy="saving || loading">
-        <header>
-          <h2 class="text-2xl font-semibold">Edit Profile</h2>
-          <p class="text-sm text-gray-500">Your info and connected accounts.</p>
-        </header>
+    <div class="max-w-2xl mx-auto py-6 space-y-6" :aria-busy="saving || loading">
+      <header>
+        <h2 class="text-2xl font-semibold">Edit Profile</h2>
+        <p class="text-sm text-gray-500">Your info and connected accounts.</p>
+      </header>
 
-        <UCard>
-          <template #header>
-            <h3 class="text-lg font-medium">Personal</h3>
-          </template>
+      <UCard>
+        <template #header>
+          <h3 class="text-lg font-medium">Personal</h3>
+        </template>
 
-          <UForm :state="profile">
-            <div class="flex items-start gap-6">
-              <UFileUpload
-                v-slot="{ open, removeFile }"
-                v-model="uploadedFile"
-                accept="image/*"
-                :multiple="false"
-                :dropzone="false"
-                :interactive="false"
-              >
-                <div class="relative inline-block">
-                  <button type="button" @click="open()" class="rounded-full ring-1 ring-white/10 hover:ring-primary/40">
-                    <UAvatar
-                      :src="avatarPreview || undefined"
-                      :alt="profile.firstname || 'Avatar'"
-                      class="w-28 h-28 rounded-full"
-                      :ui="{ root: 'rounded-full', image: 'object-cover' }"
-                      icon="i-lucide-image"
-                    />
-                  </button>
-                  <UButton
-                    icon="i-lucide-pencil"
-                    size="sm"
-                    color="primary"
-                    class="absolute -bottom-2 -right-2 rounded-full"
-                    @click.stop="open()"
-                  />
-                </div>
-
-                <div class="mt-2">
-                  <UButton v-if="uploadedFile" size="xs" variant="link" color="neutral" @click="removeFile()">Remove</UButton>
-                  <p v-if="uploadedFile" class="text-xs text-gray-500 mt-1">Selected: {{ uploadedFile.name }}</p>
-                </div>
-              </UFileUpload>
-
-              <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <UFormField label="First Name">
-                  <UInput v-model="profile.firstname" autocomplete="given-name" placeholder="First name" :disabled="saving" />
-                </UFormField>
-                <UFormField label="Last Name">
-                  <UInput v-model="profile.lastname" autocomplete="family-name" placeholder="Last name" :disabled="saving" />
-                </UFormField>
+        <UForm :state="profile">
+          <div class="flex items-start gap-6">
+            <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false"
+              :dropzone="false" :interactive="false">
+              <div class="relative inline-block">
+                <button type="button" @click="open()" class="rounded-full ring-1 ring-white/10 hover:ring-primary/40">
+                  <UAvatar :src="avatarPreview || undefined" :alt="profile.firstname || 'Avatar'"
+                    class="w-28 h-28 rounded-full" :ui="{ root: 'rounded-full', image: 'object-cover' }"
+                    icon="i-lucide-image" />
+                </button>
+                <UButton icon="i-lucide-pencil" size="sm" color="primary"
+                  class="absolute -bottom-2 -right-2 rounded-full" @click.stop="open()" />
               </div>
-            </div>
-          </UForm>
-        </UCard>
 
-        <UCard>
-          <template #header>
-            <h3 class="text-lg font-medium">Connected Accounts</h3>
-          </template>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <UFormField label="Steam Username">
-              <UInput
-                v-model="profile.steam_username"
-                autocomplete="username"
-                placeholder="Steam username"
-                icon="i-lucide-gamepad-2"
-                :disabled="saving"
-              />
-            </UFormField>
-            <UFormField label="Discord Username">
-              <UInput
-                v-model="profile.discord_username"
-                autocomplete="off"
-                placeholder="name#1234 or new username"
-                icon="i-lucide-message-circle"
-                :disabled="saving"
-              />
-            </UFormField>
+              <div class="mt-2">
+                <UButton v-if="uploadedFile" size="xs" variant="link" color="neutral" @click="removeFile()">
+                  Remove
+                </UButton>
+                <p v-if="uploadedFile" class="text-xs text-gray-500 mt-1">
+                  Selected: {{ uploadedFile.name }}
+                </p>
+              </div>
+            </UFileUpload>
+
+            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <UFormField label="First Name">
+                <UInput v-model="profile.firstname" autocomplete="given-name" placeholder="First name"
+                  :disabled="saving" />
+              </UFormField>
+              <UFormField label="Last Name">
+                <UInput v-model="profile.lastname" autocomplete="family-name" placeholder="Last name"
+                  :disabled="saving" />
+              </UFormField>
+            </div>
           </div>
-        </UCard>
-      </div>
-    </UContainer>
+        </UForm>
+      </UCard>
+
+      <UCard>
+        <template #header>
+          <h3 class="text-lg font-medium">Connected Accounts</h3>
+        </template>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <UFormField label="Steam Username">
+            <UInput v-model="profile.steam_username" autocomplete="username" placeholder="Steam username"
+              icon="i-lucide-gamepad-2" :disabled="saving" />
+          </UFormField>
+          <UFormField label="Discord Username">
+            <UInput v-model="profile.discord_username" autocomplete="off" placeholder="name#1234 or new username"
+              icon="i-lucide-message-circle" :disabled="saving" />
+          </UFormField>
+        </div>
+      </UCard>
+    </div>
 
     <template #fallback>
-      <UContainer>
-        <div class="max-w-2xl mx-auto py-6 text-sm text-gray-500">Loading…</div>
-      </UContainer>
+      <div class="max-w-2xl mx-auto py-6 text-sm text-gray-500">Loading…</div>
     </template>
   </ClientOnly>
 </template>
+
 
 <style scoped>
 :focus-visible {
