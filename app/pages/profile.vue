@@ -106,6 +106,7 @@ onBeforeUnmount(() => {
   if (blobUrl) URL.revokeObjectURL(blobUrl)
 })
 
+// --- validation
 function validateImage(file: File): string | null {
   if (!file.type.startsWith('image/')) return 'Please choose an image file.'
   if (file.size > 2 * 1024 * 1024) return 'Image is too large (max 2MB).'
@@ -114,12 +115,22 @@ function validateImage(file: File): string | null {
 
 const { notify } = useNotify()
 
+// --- throttled success toast (avoid spam during autosave)
+const lastSuccessToastAt = ref(0)
+function toastSaved() {
+  const now = Date.now()
+  if (now - lastSuccessToastAt.value < 4000) return // throttle 4s
+  lastSuccessToastAt.value = now
+  notify({ title: 'Saved', description: 'Profile updated.', color: 'success', icon: 'i-lucide-check-circle' })
+}
+
 async function saveProfile() {
   if (!isReady.value) {
     notify({ title: 'Not signed in', description: 'Please sign in.', color: 'error', icon: 'i-lucide-x-circle' })
     return
   }
 
+  // ensure id before validation
   profile.value.id = userId.value as string
 
   try {
@@ -131,6 +142,7 @@ async function saveProfile() {
 
   saving.value = true
   try {
+    // upload avatar if present
     if (uploadedFile.value) {
       const err = validateImage(uploadedFile.value)
       if (err) throw new Error(err)
@@ -161,6 +173,9 @@ async function saveProfile() {
 
     original.value = { ...(data as Profile) }
     uploadedFile.value = null
+
+    // success toast (throttled)
+    toastSaved()
   } catch (e: any) {
     notify({ title: 'Update failed', description: e?.message ?? 'Unknown error', color: 'error', icon: 'i-lucide-x-circle' })
   } finally {
@@ -183,8 +198,10 @@ const requestSave = debounce(async () => {
   await saveProfile()
 }, 800)
 
+// autosave when profile changes (deep)
 watch(profile, () => { requestSave() }, { deep: true })
 
+// when a file is selected, preview + autosave
 watch(uploadedFile, (file) => {
   if (!file) return
   const err = validateImage(file)
@@ -197,6 +214,7 @@ watch(uploadedFile, (file) => {
   requestSave()
 })
 
+// protect against accidental navigation while a save is running
 onMounted(() => {
   const handler = (e: BeforeUnloadEvent) => {
     if (saving.value) {
