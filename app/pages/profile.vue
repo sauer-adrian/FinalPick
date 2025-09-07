@@ -229,97 +229,141 @@ onMounted(() => {
 
 <template>
   <ClientOnly>
-    <div class="py-6 space-y-6" :aria-busy="saving || loading">
+    <div class="py-5 space-y-5" :aria-busy="saving || loading">
       <header>
         <h2 class="text-2xl font-semibold">Edit Profile</h2>
         <p class="text-sm text-gray-500">Your info and connected accounts.</p>
       </header>
 
-      <UCard>
-        <template #header>
-          <h3 class="text-lg font-medium">Personal</h3>
-        </template>
+      <!-- Personal -->
+      <UCard class="overflow-hidden bg-white/2 dark:bg-white/2 ring-1 ring-white/5">
+        <div class="divide-y divide-white/5">
+          <!-- Section header -->
+          <div class="p-5 sm:p-6">
+            <h3 class="text-lg font-medium">Personal</h3>
+          </div>
 
-        <UForm :state="profile">
-          <div class="flex items-start gap-6">
-            <UFileUpload
-              v-slot="{ open, removeFile }"
-              v-model="uploadedFile"
-              accept="image/*"
-              :multiple="false"
-              :dropzone="false"
-              :interactive="false"
-            >
-              <div class="relative inline-block">
-                <button type="button" @click="open()" class="rounded-full ring-1 ring-white/10 hover:ring-primary/40">
-                  <UAvatar
-                    :src="avatarPreview || undefined"
-                    :alt="profile.firstname || 'Avatar'"
-                    class="w-28 h-28 rounded-full"
-                    :ui="{ root: 'rounded-full', image: 'object-cover' }"
-                    icon="i-lucide-image"
-                  />
-                </button>
-                <UButton
-                  icon="i-lucide-pencil"
-                  size="sm"
-                  color="primary"
-                  class="absolute -bottom-2 -right-2 rounded-full"
-                  @click.stop="open()"
+          <!-- Section content -->
+          <div class="p-5 sm:p-6">
+            <UForm :state="profile">
+              <!-- Desktop grid: avatar left, fields right -->
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                <!-- Avatar column -->
+                <div class="md:col-span-3">
+                  <UFileUpload
+                    v-slot="{ open, removeFile }"
+                    v-model="uploadedFile"
+                    accept="image/*"
+                    :multiple="false"
+                    :dropzone="false"
+                    :interactive="false"
+                  >
+                    <div class="relative inline-block">
+                      <button
+                        type="button"
+                        @click="open()"
+                        class="rounded-full ring-1 ring-white/10 hover:ring-primary/40"
+                        aria-label="Change avatar"
+                      >
+                        <UAvatar
+                          :src="avatarPreview || undefined"
+                          :alt="profile.firstname || 'Avatar'"
+                          class="w-24 h-24 sm:w-28 sm:h-28 rounded-full"
+                          :ui="{ root: 'rounded-full', image: 'object-cover' }"
+                          icon="i-lucide-image"
+                        />
+                      </button>
+                      <UButton
+                        icon="i-lucide-pencil"
+                        size="xs"
+                        color="primary"
+                        class="absolute -bottom-2 -right-2 rounded-full"
+                        @click.stop="open()"
+                      />
+                    </div>
+
+                    <div class="mt-2">
+                      <UButton
+                        v-if="uploadedFile"
+                        size="xs"
+                        variant="link"
+                        color="neutral"
+                        @click="removeFile()"
+                      >
+                        Remove
+                      </UButton>
+                      <p v-if="uploadedFile" class="text-xs text-gray-500 mt-1">
+                        Selected: {{ uploadedFile.name }}
+                      </p>
+                    </div>
+                  </UFileUpload>
+                </div>
+
+                <!-- Fields column -->
+                <div class="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <UFormField label="First Name">
+                    <UInput
+                      v-model="profile.firstname"
+                      autocomplete="given-name"
+                      placeholder="First name"
+                      :disabled="saving"
+                    />
+                  </UFormField>
+
+                  <UFormField label="Last Name">
+                    <UInput
+                      v-model="profile.lastname"
+                      autocomplete="family-name"
+                      placeholder="Last name"
+                      :disabled="saving"
+                    />
+                  </UFormField>
+                </div>
+              </div>
+            </UForm>
+          </div>
+        </div>
+      </UCard>
+
+      <!-- Connected Accounts -->
+      <UCard class="overflow-hidden bg-white/2 dark:bg-white/2 ring-1 ring-white/5">
+        <div class="divide-y divide-white/5">
+          <div class="p-5 sm:p-6">
+            <h3 class="text-lg font-medium">Connected Accounts</h3>
+          </div>
+
+          <div class="p-5 sm:p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <UFormField label="Steam Username">
+                <UInput
+                  v-model="profile.steam_username"
+                  autocomplete="username"
+                  placeholder="Steam username"
+                  icon="i-lucide-gamepad-2"
+                  :disabled="saving"
                 />
-              </div>
-
-              <div class="mt-2">
-                <UButton v-if="uploadedFile" size="xs" variant="link" color="neutral" @click="removeFile()">Remove</UButton>
-                <p v-if="uploadedFile" class="text-xs text-gray-500 mt-1">Selected: {{ uploadedFile.name }}</p>
-              </div>
-            </UFileUpload>
-
-            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <UFormField label="First Name">
-                <UInput v-model="profile.firstname" autocomplete="given-name" placeholder="First name" :disabled="saving" />
               </UFormField>
-              <UFormField label="Last Name">
-                <UInput v-model="profile.lastname" autocomplete="family-name" placeholder="Last name" :disabled="saving" />
+
+              <UFormField label="Discord Username">
+                <UInput
+                  v-model="profile.discord_username"
+                  autocomplete="off"
+                  placeholder="name#1234 or new username"
+                  icon="i-lucide-message-circle"
+                  :disabled="saving"
+                />
               </UFormField>
             </div>
           </div>
-        </UForm>
-      </UCard>
-
-      <UCard>
-        <template #header>
-          <h3 class="text-lg font-medium">Connected Accounts</h3>
-        </template>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField label="Steam Username">
-            <UInput
-              v-model="profile.steam_username"
-              autocomplete="username"
-              placeholder="Steam username"
-              icon="i-lucide-gamepad-2"
-              :disabled="saving"
-            />
-          </UFormField>
-          <UFormField label="Discord Username">
-            <UInput
-              v-model="profile.discord_username"
-              autocomplete="off"
-              placeholder="name#1234 or new username"
-              icon="i-lucide-message-circle"
-              :disabled="saving"
-            />
-          </UFormField>
         </div>
       </UCard>
     </div>
 
     <template #fallback>
-      <div class="py-6 text-sm text-gray-500">Loading…</div>
+      <div class="py-5 text-sm text-gray-500">Loading…</div>
     </template>
   </ClientOnly>
 </template>
-
 
 <style scoped>
 :focus-visible {
