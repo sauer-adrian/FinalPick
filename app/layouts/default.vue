@@ -60,7 +60,7 @@ const displayDescription = computed(() => user.value?.email || undefined)
 
       <!-- Right: Buttons -->
       <div class="flex items-center space-x-4">
-        <UColorModeButton />
+        <UColorModeSwitch />
 
         <!-- User (clickable -> /profile) -->
         <UUser to="/profile" :name="displayName" :description="displayDescription"
