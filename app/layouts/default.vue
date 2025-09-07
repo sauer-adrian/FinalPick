@@ -49,49 +49,40 @@ const displayName = computed(() => {
 <template>
   <div class="min-h-screen bg-white dark:bg-slate-900">
     <!-- Header -->
-    <header
-      class="sticky top-0 z-50 border-b border-black/5 dark:border-white/5
+    <header class="sticky top-0 z-50 border-b border-black/5 dark:border-white/5
              bg-white/90 dark:bg-slate-900/85 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
       <nav class="mx-auto max-w-7xl h-14 px-4 sm:px-6 flex items-center justify-between">
         <!-- Left: Brand -->
         <NuxtLink to="/" class="flex items-center gap-3 shrink-0 group">
-          <img
-            src="/logo.png"
-            alt="FinalPick logo"
-            class="w-7 h-7 rounded-md group-hover:opacity-95 transition-opacity"
-          />
+          <img src="/logo.png" alt="FinalPick logo"
+            class="w-7 h-7 rounded-md group-hover:opacity-95 transition-opacity" />
           <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:opacity-90 transition-opacity">
             FinalPick
           </span>
         </NuxtLink>
 
-      <!-- Right: Buttons -->
-      <div class="flex items-center space-x-4">
-        <UColorModeSwitch />
+        <!-- Right: Buttons -->
+        <div class="flex items-center space-x-4">
+          <UColorModeSwitch />
 
           <!-- Divider -->
           <span class="h-6 w-px bg-black/5 dark:bg-white/10" aria-hidden="true" />
 
           <!-- User -->
-          <UUser
-            to="/profile"
-            :name="displayName"
-            :avatar="{ src: avatarUrl || undefined, alt: displayName }"
-            size="md"
-            class="cursor-pointer"
-            :ui="{
+          <UUser to="/profile" :name="displayName" :avatar="{ src: avatarUrl || undefined, alt: displayName }" size="md"
+            class="cursor-pointer" :ui="{
               name: 'text-sm',
               description: 'hidden sm:inline text-xs text-gray-500',
               avatar: 'transition-transform group-hover/user:scale-110'
-            }"
-          />
+            }" />
         </div>
       </nav>
     </header>
 
-    <!-- Page -->
-    <main class="mx-auto max-w-7xl px-4 sm:px-6 py-4">
-      <slot />
+    <main class="py-4">
+      <UContainer>
+        <slot />
+      </UContainer>
     </main>
   </div>
 </template>

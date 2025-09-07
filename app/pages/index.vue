@@ -308,7 +308,7 @@ function confirmDeleteGame(game) {
 </script>
 
 <template>
-  <UContainer class="pb-4">
+  <div class="pb-4">
 
     <div class="w-full mb-6">
       <GameSearchSteam @game-added="getGames" />
@@ -324,7 +324,7 @@ function confirmDeleteGame(game) {
         <GameCard :game="game" :onVote="voteForGame" :onDelete="confirmDeleteGame" />
       </div>
     </TransitionGroup>
-  </UContainer>
+  </div>
 
   <UModal v-model:open="showDeleteModal" :title="`Delete ${gameToDelete?.name}?`" description="Are you sure you want to remove this game from the list?">
   <template #footer="{ close }">
