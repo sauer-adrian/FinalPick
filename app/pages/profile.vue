@@ -1,6 +1,5 @@
-<!-- pages/profile.vue -->
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { z } from 'zod'
 import { useSupabaseClient, useSupabaseUser } from '#imports'
 
@@ -93,7 +92,7 @@ async function fetchProfile() {
 onMounted(fetchProfile)
 watch(userId, (id) => { if (id) fetchProfile() })
 
-// local file preview (very small & safe)
+// --- local file preview (very small & safe)
 let blobUrl: string | null = null
 function setPreview(file: File) {
   if (blobUrl) URL.revokeObjectURL(blobUrl)
@@ -101,8 +100,11 @@ function setPreview(file: File) {
   avatarPreview.value = blobUrl
 }
 onMounted(() => {
-  // revoke on route leave/unmount
+  // revoke on route leave/unmount or refresh
   window.addEventListener('beforeunload', () => { if (blobUrl) URL.revokeObjectURL(blobUrl) })
+})
+onBeforeUnmount(() => {
+  if (blobUrl) URL.revokeObjectURL(blobUrl)
 })
 
 function validateImage(file: File): string | null {
@@ -170,6 +172,52 @@ async function saveProfile() {
     saving.value = false
   }
 }
+
+// --- autosave
+function debounce<T extends (...args: any[]) => void>(fn: T, delay = 800) {
+  let t: ReturnType<typeof setTimeout> | null = null
+  return (...args: Parameters<T>) => {
+    if (t) clearTimeout(t)
+    t = setTimeout(() => fn(...args), delay)
+  }
+}
+
+const lastSavedAt = ref<number | null>(null)
+
+const requestSave = debounce(async () => {
+  if (!isReady.value || loading.value || saving.value) return
+  if (!isDirty.value) return
+  await saveProfile()
+  lastSavedAt.value = Date.now()
+}, 800)
+
+// autosave when profile changes (deep)
+watch(profile, () => { requestSave() }, { deep: true })
+
+// when a file is selected, preview + autosave
+watch(uploadedFile, (file) => {
+  if (!file) return
+  const err = validateImage(file)
+  if (err) {
+    notify({ title: 'Invalid image', description: err, color: 'warning', icon: 'i-lucide-alert-triangle' })
+    uploadedFile.value = null
+    return
+  }
+  setPreview(file)
+  requestSave()
+})
+
+// protect against accidental navigation while a save is running
+onMounted(() => {
+  const handler = (e: BeforeUnloadEvent) => {
+    if (saving.value) {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+  }
+  window.addEventListener('beforeunload', handler)
+  onBeforeUnmount(() => window.removeEventListener('beforeunload', handler))
+})
 </script>
 
 <template>
@@ -183,12 +231,28 @@ async function saveProfile() {
 
         <UCard>
           <template #header>
-            <h3 class="text-lg font-medium">Personal</h3>
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-medium">Personal</h3>
+              <div class="flex items-center gap-2 text-xs text-gray-500">
+                <UIcon v-if="saving" name="i-lucide-loader-circle" class="animate-spin" />
+                <span v-if="saving">Saving…</span>
+                <span v-else-if="!isDirty">Saved</span>
+                <span v-else>Editing…</span>
+              </div>
+            </div>
           </template>
 
-          <UForm :state="profile" @submit="saveProfile">
+          <!-- No submit handler; autosave manages persistence -->
+          <UForm :state="profile">
             <div class="flex items-start gap-6">
-              <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false" :dropzone="false" :interactive="false">
+              <UFileUpload
+                v-slot="{ open, removeFile }"
+                v-model="uploadedFile"
+                accept="image/*"
+                :multiple="false"
+                :dropzone="false"
+                :interactive="false"
+              >
                 <div class="relative inline-block">
                   <button type="button" @click="open()" class="rounded-full ring-1 ring-white/10 hover:ring-primary/40">
                     <UAvatar
@@ -199,7 +263,13 @@ async function saveProfile() {
                       icon="i-lucide-image"
                     />
                   </button>
-                  <UButton icon="i-lucide-pencil" size="sm" color="primary" class="absolute -bottom-2 -right-2 rounded-full" @click.stop="open()" />
+                  <UButton
+                    icon="i-lucide-pencil"
+                    size="sm"
+                    color="primary"
+                    class="absolute -bottom-2 -right-2 rounded-full"
+                    @click.stop="open()"
+                  />
                 </div>
 
                 <div class="mt-2">
@@ -217,43 +287,56 @@ async function saveProfile() {
                 </UFormField>
               </div>
             </div>
-
-            <div class="flex justify-end mt-6">
-              <UButton icon="i-lucide-save" type="submit" :disabled="!isReady || !isDirty || saving || loading" :loading="saving">
-                Save changes
-              </UButton>
-            </div>
           </UForm>
         </UCard>
 
         <UCard>
           <template #header>
-            <h3 class="text-lg font-medium">Connected Accounts</h3>
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-medium">Connected Accounts</h3>
+              <div class="flex items-center gap-2 text-xs text-gray-500">
+                <UIcon v-if="saving" name="i-lucide-loader-circle" class="animate-spin" />
+                <span v-if="saving">Saving…</span>
+                <span v-else-if="!isDirty">Saved</span>
+                <span v-else>Editing…</span>
+              </div>
+            </div>
           </template>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <UFormField label="Steam Username">
-              <UInput v-model="profile.steam_username" autocomplete="username" placeholder="Steam username" icon="i-lucide-gamepad-2" :disabled="saving" />
+              <UInput
+                v-model="profile.steam_username"
+                autocomplete="username"
+                placeholder="Steam username"
+                icon="i-lucide-gamepad-2"
+                :disabled="saving"
+              />
             </UFormField>
             <UFormField label="Discord Username">
-              <UInput v-model="profile.discord_username" autocomplete="off" placeholder="name#1234 or new username" icon="i-lucide-message-circle" :disabled="saving" />
+              <UInput
+                v-model="profile.discord_username"
+                autocomplete="off"
+                placeholder="name#1234 or new username"
+                icon="i-lucide-message-circle"
+                :disabled="saving"
+              />
             </UFormField>
           </div>
         </UCard>
-
-        <div v-if="loading" class="grid gap-3">
-          <USkeleton class="h-8 w-1/3" />
-          <USkeleton class="h-28 w-28 rounded-full" />
-          <USkeleton class="h-10 w-full" />
-        </div>
       </div>
     </UContainer>
 
     <template #fallback>
-      <UContainer><div class="max-w-2xl mx-auto py-6 text-sm text-gray-500">Loading…</div></UContainer>
+      <UContainer>
+        <div class="max-w-2xl mx-auto py-6 text-sm text-gray-500">Loading…</div>
+      </UContainer>
     </template>
   </ClientOnly>
 </template>
 
 <style scoped>
-:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
 </style>
