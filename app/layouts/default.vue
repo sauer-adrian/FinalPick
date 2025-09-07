@@ -48,28 +48,51 @@ const displayDescription = computed(() => user.value?.email || undefined)
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <!-- Navigation -->
-    <nav
-      class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900">
-      <!-- Left: Logo + App Name -->
-      <NuxtLink to="/" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-        <img src="/logo.png" alt="Logo" class="w-8 h-8" />
-        <h1 class="text-xl font-semibold text-gray-800 dark:text-white">FinalPick</h1>
-      </NuxtLink>
+  <div class="min-h-screen bg-white dark:bg-slate-900">
+    <!-- Header -->
+    <header
+      class="sticky top-0 z-50 border-b border-black/5 dark:border-white/5
+             bg-white/90 dark:bg-slate-900/85 backdrop-blur supports-[backdrop-filter]:backdrop-blur">
+      <nav class="mx-auto max-w-7xl h-14 px-4 sm:px-6 flex items-center justify-between">
+        <!-- Left: Brand -->
+        <NuxtLink to="/" class="flex items-center gap-3 shrink-0 group">
+          <img
+            src="/logo.png"
+            alt="FinalPick logo"
+            class="w-7 h-7 rounded-md ring-1 ring-black/5 dark:ring-white/10 group-hover:opacity-95 transition-opacity"
+          />
+          <span class="text-base font-semibold text-gray-900 dark:text-white group-hover:opacity-90 transition-opacity">
+            FinalPick
+          </span>
+        </NuxtLink>
 
       <!-- Right: Buttons -->
       <div class="flex items-center space-x-4">
         <UColorModeSwitch />
 
-        <!-- User (clickable -> /profile) -->
-        <UUser to="/profile" :name="displayName" :description="displayDescription"
-          :avatar="{ src: avatarUrl || undefined, alt: displayName }" size="md" class="cursor-pointer" />
+          <!-- Divider -->
+          <span class="h-6 w-px bg-black/5 dark:bg-white/10" aria-hidden="true" />
 
-      </div>
-    </nav>
+          <!-- User -->
+          <UUser
+            to="/profile"
+            :name="displayName"
+            :description="displayDescription"
+            :avatar="{ src: avatarUrl || undefined, alt: displayName }"
+            size="md"
+            class="cursor-pointer"
+            :ui="{
+              name: 'text-sm',
+              description: 'hidden sm:inline text-xs text-gray-500',
+              avatar: 'transition-transform group-hover/user:scale-110'
+            }"
+          />
+        </div>
+      </nav>
+    </header>
 
-    <main class="p-4">
+    <!-- Page -->
+    <main class="mx-auto max-w-7xl px-4 sm:px-6 py-4">
       <slot />
     </main>
   </div>
