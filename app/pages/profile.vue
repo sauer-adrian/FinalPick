@@ -136,7 +136,7 @@ async function saveProfile() {
                 <button type="button" @click="open()"
                   class="rounded-full ring-1 ring-white/10 hover:ring-primary/40 transition focus:outline-none"
                   aria-label="Change profile picture" title="Change profile picture">
-                  <UAvatar size="3xl" :src="avatarPreview || undefined" icon="i-lucide-image"
+                  <UAvatar :src="avatarPreview || undefined" icon="i-lucide-image" class="w-64 h-64 rounded-full"
                     :ui="{ root: 'rounded-full', image: 'object-cover' }" />
                 </button>
 
