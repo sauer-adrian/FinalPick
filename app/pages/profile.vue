@@ -92,7 +92,7 @@ async function fetchProfile() {
 onMounted(fetchProfile)
 watch(userId, (id) => { if (id) fetchProfile() })
 
-// --- local file preview (very small & safe)
+// --- local file preview
 let blobUrl: string | null = null
 function setPreview(file: File) {
   if (blobUrl) URL.revokeObjectURL(blobUrl)
@@ -100,7 +100,6 @@ function setPreview(file: File) {
   avatarPreview.value = blobUrl
 }
 onMounted(() => {
-  // revoke on route leave/unmount or refresh
   window.addEventListener('beforeunload', () => { if (blobUrl) URL.revokeObjectURL(blobUrl) })
 })
 onBeforeUnmount(() => {
@@ -121,7 +120,6 @@ async function saveProfile() {
     return
   }
 
-  // ensure id before validation
   profile.value.id = userId.value as string
 
   try {
@@ -133,7 +131,6 @@ async function saveProfile() {
 
   saving.value = true
   try {
-    // upload avatar if present
     if (uploadedFile.value) {
       const err = validateImage(uploadedFile.value)
       if (err) throw new Error(err)
@@ -164,8 +161,6 @@ async function saveProfile() {
 
     original.value = { ...(data as Profile) }
     uploadedFile.value = null
-
-    notify({ title: 'Saved', description: 'Profile updated.', color: 'success', icon: 'i-lucide-check-circle' })
   } catch (e: any) {
     notify({ title: 'Update failed', description: e?.message ?? 'Unknown error', color: 'error', icon: 'i-lucide-x-circle' })
   } finally {
@@ -182,19 +177,14 @@ function debounce<T extends (...args: any[]) => void>(fn: T, delay = 800) {
   }
 }
 
-const lastSavedAt = ref<number | null>(null)
-
 const requestSave = debounce(async () => {
   if (!isReady.value || loading.value || saving.value) return
   if (!isDirty.value) return
   await saveProfile()
-  lastSavedAt.value = Date.now()
 }, 800)
 
-// autosave when profile changes (deep)
 watch(profile, () => { requestSave() }, { deep: true })
 
-// when a file is selected, preview + autosave
 watch(uploadedFile, (file) => {
   if (!file) return
   const err = validateImage(file)
@@ -207,7 +197,6 @@ watch(uploadedFile, (file) => {
   requestSave()
 })
 
-// protect against accidental navigation while a save is running
 onMounted(() => {
   const handler = (e: BeforeUnloadEvent) => {
     if (saving.value) {
@@ -231,18 +220,9 @@ onMounted(() => {
 
         <UCard>
           <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-medium">Personal</h3>
-              <div class="flex items-center gap-2 text-xs text-gray-500">
-                <UIcon v-if="saving" name="i-lucide-loader-circle" class="animate-spin" />
-                <span v-if="saving">Saving…</span>
-                <span v-else-if="!isDirty">Saved</span>
-                <span v-else>Editing…</span>
-              </div>
-            </div>
+            <h3 class="text-lg font-medium">Personal</h3>
           </template>
 
-          <!-- No submit handler; autosave manages persistence -->
           <UForm :state="profile">
             <div class="flex items-start gap-6">
               <UFileUpload
@@ -292,15 +272,7 @@ onMounted(() => {
 
         <UCard>
           <template #header>
-            <div class="flex items-center justify-between">
-              <h3 class="text-lg font-medium">Connected Accounts</h3>
-              <div class="flex items-center gap-2 text-xs text-gray-500">
-                <UIcon v-if="saving" name="i-lucide-loader-circle" class="animate-spin" />
-                <span v-if="saving">Saving…</span>
-                <span v-else-if="!isDirty">Saved</span>
-                <span v-else>Editing…</span>
-              </div>
-            </div>
+            <h3 class="text-lg font-medium">Connected Accounts</h3>
           </template>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <UFormField label="Steam Username">
