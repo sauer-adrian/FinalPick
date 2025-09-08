@@ -289,12 +289,12 @@ onMounted(() => {
                 <!-- Accounts -->
                 <UFormField label="Steam Username">
                   <UInput v-model="profile.steam_username" autocomplete="username" placeholder="Steam username"
-                    icon="i-lucide-gamepad-2" :disabled="saving" />
+                    :disabled="saving" />
                 </UFormField>
 
                 <UFormField label="Discord Username" help="Use name#1234 or the new Discord username.">
                   <UInput v-model="profile.discord_username" autocomplete="off" placeholder="name#1234 or new username"
-                    icon="i-lucide-message-circle" :disabled="saving" />
+                    :disabled="saving" />
                 </UFormField>
               </div>
             </div>
