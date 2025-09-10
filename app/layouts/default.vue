@@ -2,10 +2,6 @@
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
 
-async function logout() {
-  await supabase.auth.signOut()
-  await navigateTo('/login')
-}
 
 // Load avatar + names if available
 const avatarUrl = ref<string | null>(null)

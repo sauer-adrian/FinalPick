@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { z } from 'zod'
-import { useSupabaseClient, useSupabaseUser } from '#imports'
+import { useSupabaseClient, useSupabaseUser, navigateTo } from '#imports'
 
 type Profile = {
   id: string
@@ -225,21 +225,41 @@ onMounted(() => {
   window.addEventListener('beforeunload', handler)
   onBeforeUnmount(() => window.removeEventListener('beforeunload', handler))
 })
+
+// --- logout
+async function logout() {
+  await supabase.auth.signOut()
+  await navigateTo('/login')
+}
 </script>
 
 <template>
   <ClientOnly>
     <div class="py-6" :aria-busy="saving || loading">
       <!-- Page header -->
-      <header class="max-w-5xl mx-auto mb-4">
-        <h2 class="text-2xl font-semibold">Edit Profile</h2>
-        <p class="text-xs text-gray-500 mt-1">Update your name, avatar, and linked usernames in one place.</p>
+      <header class="max-w-5xl mx-auto mb-4 flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-semibold">Edit Profile</h2>
+          <p class="text-xs text-gray-500 mt-1">
+            Update your name, avatar, and linked usernames in one place.
+          </p>
+        </div>
+
+        <!-- Logout button (desktop) -->
+        <UButton icon="i-lucide-log-out" color="neutral" variant="outline" :disabled="saving || loading" @click="logout"
+          class="hidden sm:inline-flex" aria-label="Sign out">
+          Sign out
+        </UButton>
       </header>
 
       <!-- SINGLE CARD LAYOUT -->
       <UCard class="max-w-5xl mx-auto overflow-hidden ring-1 ring-white/5">
-        <div class="px-5 sm:px-6 pt-5 sm:pt-6">
+        <div class="px-5 sm:px-6 pt-5 sm:pt-6 flex items-center justify-between">
           <h3 class="text-lg font-medium">Profile</h3>
+
+          <!-- Logout button (mobile) -->
+          <UButton icon="i-lucide-log-out" size="sm" color="neutral" variant="outline" :disabled="saving || loading"
+            @click="logout" class="sm:hidden" aria-label="Sign out" />
         </div>
 
         <div class="px-5 sm:px-6 pb-5 sm:pb-6">
@@ -274,7 +294,7 @@ onMounted(() => {
               </div>
 
               <!-- Fields -->
-              <div class="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="md:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Name -->
                 <UFormField label="First Name">
                   <UInput v-model="profile.firstname" autocomplete="given-name" placeholder="First name"
@@ -308,8 +328,6 @@ onMounted(() => {
     </template>
   </ClientOnly>
 </template>
-
-
 
 <style scoped>
 :focus-visible {
