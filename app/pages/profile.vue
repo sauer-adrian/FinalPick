@@ -282,7 +282,7 @@ async function logout() {
                   :dropzone="false" :interactive="false">
                   <div class="w-28 h-28">
                     <!-- Chip overlays inside the rounded avatar -->
-                    <UChip inset position="bottom-right">
+                    <UChip inset position="bottom-right" :ui="{ base: 'bg-transparent ring-0 p-0' }">
                       <!-- Whole avatar is clickable -->
                       <button type="button" @click="open()"
                         class="block w-full h-full rounded-full ring-1 ring-white/10 hover:ring-primary/40 focus-visible:ring-primary/60"
