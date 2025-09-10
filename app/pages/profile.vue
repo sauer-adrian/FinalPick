@@ -280,16 +280,24 @@ async function logout() {
               <div class="md:col-span-3 flex justify-center md:block">
                 <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false"
                   :dropzone="false" :interactive="false">
-                  <div class="relative w-28 h-28">
-                    <button type="button" @click="open()"
-                      class="block w-full h-full rounded-full ring-1 ring-white/10 hover:ring-primary/40"
-                      aria-label="Change avatar">
-                      <UAvatar :src="avatarPreview || undefined" :alt="profile.firstname || 'Avatar'"
-                        class="w-full h-full rounded-full" :ui="{ root: 'rounded-full', image: 'object-cover' }"
-                        icon="i-lucide-image" />
-                    </button>
-                    <UButton icon="i-lucide-pencil" size="xs" color="primary"
-                      class="absolute right-0.5 bottom-0.5 rounded-full" @click.stop="open()" />
+                  <div class="w-28 h-28">
+                    <!-- Chip overlays inside the rounded avatar -->
+                    <UChip inset position="bottom-right">
+                      <!-- Whole avatar is clickable -->
+                      <button type="button" @click="open()"
+                        class="block w-full h-full rounded-full ring-1 ring-white/10 hover:ring-primary/40 focus-visible:ring-primary/60"
+                        aria-label="Change avatar">
+                        <UAvatar :src="avatarPreview || undefined" :alt="profile.firstname || 'Avatar'"
+                          class="w-full h-full rounded-full" :ui="{ root: 'rounded-full', image: 'object-cover' }"
+                          icon="i-lucide-image" />
+                      </button>
+
+                      <!-- Chip content: a tiny edit button -->
+                      <template #content>
+                        <UButton icon="i-lucide-pencil" size="2xs" color="neutral" variant="soft"
+                          class="rounded-full ring-2 ring-white/80" aria-label="Edit avatar" @click.stop="open()" />
+                      </template>
+                    </UChip>
                   </div>
 
                   <div class="mt-2 text-center md:text-left">
@@ -302,6 +310,7 @@ async function logout() {
                   </div>
                 </UFileUpload>
               </div>
+
 
 
               <!-- Fields -->
