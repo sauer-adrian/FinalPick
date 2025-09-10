@@ -294,9 +294,10 @@ async function logout() {
 
                       <!-- Chip content: a tiny edit button -->
                       <template #content>
-                        <UButton icon="i-lucide-pencil" size="md" color="neutral" variant="ghost"
-                          class="rounded-full ring-2 ring-white/80" aria-label="Edit avatar" @click.stop="open()" />
+                        <UButton icon="i-lucide-pencil" size="md" color="primary" variant="solid" class="rounded-full"
+                          aria-label="Edit avatar" @click.stop="open()" />
                       </template>
+
                     </UChip>
                   </div>
 
