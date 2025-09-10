@@ -267,7 +267,6 @@ async function logout() {
       <!-- SINGLE CARD LAYOUT -->
       <UCard class="max-w-5xl mx-auto overflow-hidden ring-1 ring-white/5">
         <div class="px-5 sm:px-6 pt-5 sm:pt-6 flex items-center justify-between">
-          <h3 class="text-lg font-medium">Profile</h3>
 
           <!-- Logout button (mobile) -->
           <UButton icon="i-lucide-log-out" size="sm" color="neutral" variant="outline" :disabled="saving || loading"
@@ -278,10 +277,9 @@ async function logout() {
           <UForm :state="profile" class="w-full">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
               <!-- Avatar -->
-              <div class="md:col-span-3">
+              <div class="md:col-span-3 flex justify-center md:block">
                 <UFileUpload v-slot="{ open, removeFile }" v-model="uploadedFile" accept="image/*" :multiple="false"
                   :dropzone="false" :interactive="false">
-                  <!-- fixed-size wrapper so badge anchors well -->
                   <div class="relative w-28 h-28">
                     <button type="button" @click="open()"
                       class="block w-full h-full rounded-full ring-1 ring-white/10 hover:ring-primary/40"
@@ -294,7 +292,7 @@ async function logout() {
                       class="absolute right-0.5 bottom-0.5 rounded-full" @click.stop="open()" />
                   </div>
 
-                  <div class="mt-2">
+                  <div class="mt-2 text-center md:text-left">
                     <UButton v-if="uploadedFile" size="xs" variant="link" color="neutral" @click="removeFile()">
                       Remove
                     </UButton>
@@ -304,6 +302,7 @@ async function logout() {
                   </div>
                 </UFileUpload>
               </div>
+
 
               <!-- Fields -->
               <div class="md:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
