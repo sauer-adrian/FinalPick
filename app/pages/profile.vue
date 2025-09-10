@@ -31,6 +31,18 @@ const profile = ref<Profile>({
 })
 const original = ref<Profile>({ ...profile.value })
 
+// Make form fields truly full width on mobile
+const fieldUi = {
+  container: 'w-full', // FormField outer container
+  label: '',
+  description: '',
+  hint: '',
+  help: '',
+  error: '',
+  // For Nuxt UI v3 UFormField, pass-through classes to child control:
+  // Using "w-full" on inputs as well to be safe.
+}
+
 // --- helpers
 const userId = computed(() => user.value?.id ?? null)
 const isReady = computed(() => !!userId.value)
@@ -263,7 +275,7 @@ async function logout() {
         </div>
 
         <div class="px-5 sm:px-6 pb-5 sm:pb-6">
-          <UForm :state="profile">
+          <UForm :state="profile" class="w-full">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
               <!-- Avatar -->
               <div class="md:col-span-3">
@@ -294,27 +306,28 @@ async function logout() {
               </div>
 
               <!-- Fields -->
-              <div class="md:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="md:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
                 <!-- Name -->
-                <UFormField label="First Name">
-                  <UInput v-model="profile.firstname" autocomplete="given-name" placeholder="First name"
+                <UFormField label="First Name" :ui="fieldUi" class="w-full">
+                  <UInput v-model="profile.firstname" class="w-full" autocomplete="given-name" placeholder="First name"
                     :disabled="saving" />
                 </UFormField>
 
-                <UFormField label="Last Name">
-                  <UInput v-model="profile.lastname" autocomplete="family-name" placeholder="Last name"
+                <UFormField label="Last Name" :ui="fieldUi" class="w-full">
+                  <UInput v-model="profile.lastname" class="w-full" autocomplete="family-name" placeholder="Last name"
                     :disabled="saving" />
                 </UFormField>
 
                 <!-- Accounts -->
-                <UFormField label="Steam Username">
-                  <UInput v-model="profile.steam_username" autocomplete="username" placeholder="Steam username"
-                    :disabled="saving" />
+                <UFormField label="Steam Username" :ui="fieldUi" class="w-full">
+                  <UInput v-model="profile.steam_username" class="w-full" autocomplete="username"
+                    placeholder="Steam username" :disabled="saving" />
                 </UFormField>
 
-                <UFormField label="Discord Username" help="Use name#1234 or the new Discord username.">
-                  <UInput v-model="profile.discord_username" autocomplete="off" placeholder="name#1234 or new username"
-                    :disabled="saving" />
+                <UFormField label="Discord Username" :ui="fieldUi" class="w-full"
+                  help="Use name#1234 or the new Discord username.">
+                  <UInput v-model="profile.discord_username" class="w-full" autocomplete="off"
+                    placeholder="name#1234 or new username" :disabled="saving" />
                 </UFormField>
               </div>
             </div>
