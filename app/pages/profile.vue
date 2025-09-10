@@ -265,7 +265,7 @@ async function logout() {
       </header>
 
       <!-- SINGLE CARD LAYOUT -->
-      <UCard class="max-w-5xl mx-auto overflow-hidden ring-1 ring-white/5">
+      <UCard class="max-w-5xl mx-auto overflow-hidden">
         <div class="px-5 sm:px-6 pt-5 sm:pt-6 flex items-center justify-between">
 
           <!-- Logout button (mobile) -->
