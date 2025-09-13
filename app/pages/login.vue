@@ -12,34 +12,65 @@ const toast = useToast()
 // Toggle between "login" and "signup"
 const mode = ref<'login' | 'signup'>('login')
 
+// ---- Default avatar (path inside your 'avatars' bucket)
+const DEFAULT_AVATAR_PATH = 'defaults/placeholder.png'
+
 // Zod schemas (stricter for signup)
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(1, 'Required')
 })
+
 const signupSchema = z.object({
   email: z.string().email('Invalid email'),
-  password: z.string().min(8, 'Must be at least 8 characters')
+  password: z.string().min(8, 'Must be at least 8 characters'),
+  firstname: z.string().trim().max(100, 'Max 100 chars').optional().or(z.literal('')).transform(v => v || undefined),
+  lastname: z.string().trim().max(100, 'Max 100 chars').optional().or(z.literal('')).transform(v => v || undefined)
 })
+
 const schema = computed(() => (mode.value === 'login' ? loginSchema : signupSchema))
 
-// Fields adjust with mode if you want to vary labels/placeholders
-const fields = computed(() => ([
-  {
-    name: 'email',
-    type: 'text' as const,
-    label: 'Email',
-    placeholder: 'Enter your email',
-    required: true
-  },
-  {
-    name: 'password',
-    label: 'Password',
-    type: 'password' as const,
-    placeholder: mode.value === 'login' ? 'Enter your password' : 'Create a password',
-    required: true
+// Fields adjust with mode
+const fields = computed(() => {
+  const base = [
+    {
+      name: 'email',
+      type: 'text' as const,
+      label: 'Email',
+      placeholder: 'Enter your email',
+      required: true
+    },
+    {
+      name: 'password',
+      label: 'Password',
+      type: 'password' as const,
+      placeholder: mode.value === 'login' ? 'Enter your password' : 'Create a password',
+      required: true
+    }
+  ]
+
+  if (mode.value === 'signup') {
+    // Insert name fields above password for a nicer flow
+    base.splice(1, 0,
+      {
+        name: 'firstname',
+        type: 'text' as const,
+        label: 'First name',
+        placeholder: 'Your first name',
+        required: false
+      },
+      {
+        name: 'lastname',
+        type: 'text' as const,
+        label: 'Last name',
+        placeholder: 'Your last name',
+        required: false
+      }
+    )
   }
-]))
+
+  return base
+})
 
 // Loading + inline error message (shown in #validation slot)
 const loading = ref(false)
@@ -70,22 +101,24 @@ async function onForgotPassword() {
   }
 }
 
-// Ensure profiles row exists
-async function ensureProfile(userId: string) {
+// Ensure profiles row exists (optionally with names)
+async function ensureProfile(userId: string, opts?: { firstname?: string; lastname?: string }) {
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('id')
     .eq('id', userId)
-    .single()
+    .maybeSingle()
 
-  // If not found (PGRST116) insert a blank profile
-  if (profileError?.code === 'PGRST116') {
+  // If not found (PGRST116) insert a profile with defaults
+  if (!profile && profileError?.code === 'PGRST116') {
     await supabase.from('profiles').insert({
       id: userId,
-      firstname: '',
-      lastname: '',
+      firstname: opts?.firstname ?? '',
+      lastname: opts?.lastname ?? '',
       steam_username: '',
-      discord_username: ''
+      discord_username: '',
+      // Set default avatar path so the UI can resolve it
+      avatar_url: DEFAULT_AVATAR_PATH
     })
   }
 }
@@ -95,28 +128,36 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
   inlineError.value = ''
   loading.value = true
   try {
-    const { email, password } = payload.data
+    const { email, password, firstname, lastname } = payload.data
 
     if (mode.value === 'login') {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
       const userId = data.user?.id
-      if (userId) await ensureProfile(userId)
-
+      if (userId) await ensureProfile(userId) // will not overwrite existing
       toast.add({ title: 'Logged in', description: 'Welcome back!' })
       router.push('/')
       return
     }
 
-    // Sign up
-    const { error } = await supabase.auth.signUp({ email, password })
+    // Sign up (attach names in user_metadata as well)
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { firstname, lastname } }
+    })
     if (error) throw error
+
+    // If Supabase returns a user id immediately, create the profile now (useful when email confirmations are disabled)
+    const userId = data.user?.id
+    if (userId) {
+      await ensureProfile(userId, { firstname, lastname })
+    }
 
     toast.add({
       title: 'Check your email',
       description: 'We sent you a confirmation link to finish creating your account.'
     })
-    // Optionally switch to login mode after signup
     mode.value = 'login'
   } catch (err: any) {
     inlineError.value = err.message || 'Something went wrong.'
@@ -129,16 +170,10 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
 <template>
   <div class="flex min-h-screen items-center justify-center p-4">
     <UPageCard class="w-full max-w-md">
-      <UAuthForm
-        ref="authForm"
-        :schema="schema"
-        :fields="fields"
-        :loading="loading"
+      <UAuthForm ref="authForm" :schema="schema" :fields="fields" :loading="loading"
         :submit="{ label: mode === 'login' ? 'Continue' : 'Create account', block: true }"
         :title="mode === 'login' ? 'Welcome back!' : 'Create your account'"
-        :icon="mode === 'login' ? 'i-lucide-lock' : 'i-lucide-user-plus'"
-        @submit="onSubmit"
-      >
+        :icon="mode === 'login' ? 'i-lucide-lock' : 'i-lucide-user-plus'" @submit="onSubmit">
         <template #description>
           <div class="space-y-1">
             <p v-if="mode === 'login'">
@@ -148,11 +183,7 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
               Start your FinalPick journey in seconds.
             </p>
             <p class="mt-2">
-              <ULink
-                as="button"
-                class="text-primary font-medium"
-                @click="mode = mode === 'login' ? 'signup' : 'login'"
-              >
+              <ULink as="button" class="text-primary font-medium" @click="mode = mode === 'login' ? 'signup' : 'login'">
                 {{ mode === 'login' ? "Don't have an account? Sign up" : "Already have an account? Log in" }}
               </ULink>
             </p>
@@ -161,22 +192,13 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
 
         <!-- Inline error area -->
         <template #validation>
-          <UAlert
-            v-if="inlineError"
-            color="error"
-            icon="i-lucide-info"
-            :title="inlineError"
-          />
+          <UAlert v-if="inlineError" color="error" icon="i-lucide-info" :title="inlineError" />
         </template>
 
         <!-- Footer: terms + forgot password -->
         <template #footer>
           <div class="flex flex-col items-center gap-2">
-            <button
-              type="button"
-              class="text-primary font-medium"
-              @click="onForgotPassword"
-            >
+            <button type="button" class="text-primary font-medium" @click="onForgotPassword">
               Forgot password?
             </button>
             <p class="text-muted">
