@@ -9,16 +9,12 @@ export default defineNuxtConfig({
   supabase: {
     redirectOptions: {
       login: '/login',
-      callback: '/confirm',          // if you use email/OAuth callbacks
+      callback: '/confirm',
       exclude: [
         '/login',
         '/legal/terms',
         '/legal/privacy',
-        '/legal/impressum',
-        // add more public routes here, e.g. homepage:
-        // '/'
-        // or whole folders with a wildcard:
-        '/legal/*'
+        '/legal/impressum'
       ]
     }
   },
