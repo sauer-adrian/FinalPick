@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { queryCollection } from '#content'
-
 definePageMeta({ auth: false })
 
 const slug = useRoute().params.slug as string
