@@ -1,10 +1,13 @@
+<script setup lang="ts">
+const route = useRoute()
+const path = computed(() => route.path) // /legal/<slug>
+</script>
+
 <template>
   <main class="prose max-w-none">
-    <!-- Uses $route.path (/legal/<slug>) by default -->
-    <ContentDoc>
+    <ContentDoc :path="path" :key="path">
       <template #not-found>
         <h1>Not found</h1>
-        <p>We couldn’t find this legal page.</p>
       </template>
     </ContentDoc>
   </main>
