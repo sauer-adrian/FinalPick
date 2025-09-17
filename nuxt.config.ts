@@ -7,6 +7,9 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@nuxt/content'
   ],
+  content: {
+    experimental: { sqliteConnector: 'native' }
+  },
   supabase: {
     redirectOptions: {
       login: '/login',
