@@ -1,27 +1,11 @@
-<script setup lang="ts">
-definePageMeta({ auth: false })
-
-const slug = useRoute().params.slug as string
-const allowed = new Set(['impressum', 'privacy', 'terms'])
-if (!allowed.has(slug)) throw createError({ statusCode: 404 })
-
-const { data: page } = await useAsyncData(`legal-${slug}`, () =>
-  queryContent(`/legal/${slug}`).findOne()
-)
-if (!page.value) throw createError({ statusCode: 404 })
-
-useSeoMeta({
-  title: page.value.title ?? 'FinalPick',
-  ogTitle: page.value.title ?? 'FinalPick',
-  description: page.value.description ?? '',
-  ogDescription: page.value.description ?? ''
-})
-</script>
-
 <template>
-  <div class="min-h-screen">
-    <UContainer class="py-10">
-      <ContentRenderer v-if="page" :value="page" />
-    </UContainer>
-  </div>
+  <main class="prose max-w-none">
+    <!-- Uses $route.path (/legal/<slug>) by default -->
+    <ContentDoc>
+      <template #not-found>
+        <h1>Not found</h1>
+        <p>We couldn’t find this legal page.</p>
+      </template>
+    </ContentDoc>
+  </main>
 </template>
