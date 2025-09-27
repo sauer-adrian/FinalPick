@@ -60,5 +60,5 @@ If you have questions or requests regarding your data, please reach out via the 
 ---
 
 Also see:  
-- [Terms of Service](/legal/terms)  
-- [Impressum](/legal/impressum)
+- [Terms of Service](/terms)  
+- [Impressum](/impressum)

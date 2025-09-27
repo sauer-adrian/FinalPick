@@ -19,5 +19,5 @@ E-Mail: [adrian-sauer@outlook.com](mailto:adrian-sauer@outlook.com)
 ---
 
 Also see:  
-- [Terms of Service](/legal/terms)  
-- [Privacy Policy](/legal/privacy)
+- [Terms of Service](/terms)  
+- [Privacy Policy](/privacy)

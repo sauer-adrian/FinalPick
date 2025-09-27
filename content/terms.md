@@ -38,7 +38,7 @@ Game data comes from the Steam API. FinalPick is not affiliated with, endorsed b
 - FinalPick stores limited personal information (first name, last name, Steam username, Discord username).
 - Data is stored securely and is not shared with third parties, except as technically necessary to provide the Service.
 - You may delete your account and associated data at any time.
-- More details are explained in our [Privacy Policy](/legal/privacy).
+- More details are explained in our [Privacy Policy](/privacy).
 
 ## 7. Limitation of Liability
 FinalPick is provided as a free hobby project with no guarantees of availability, accuracy, or reliability. To the fullest extent permitted by law, FinalPick is not liable for any damages, losses, or issues arising from your use of the Service, including reliance on user-submitted content or technical errors.
@@ -55,5 +55,5 @@ For questions about these Terms, please reach out via the website’s contact fo
 ---
 
 Also see:  
-- [Privacy Policy](/legal/privacy)  
-- [Impressum](/legal/impressum)
+- [Privacy Policy](/privacy)  
+- [Impressum](/impressum)
