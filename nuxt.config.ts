@@ -16,9 +16,9 @@ export default defineNuxtConfig({
       callback: '/confirm',
       exclude: [
         '/login',
-        '/legal/terms',
-        '/legal/privacy',
-        '/legal/impressum'
+        '/terms',
+        '/privacy',
+        '/impressum'
       ]
     }
   },
