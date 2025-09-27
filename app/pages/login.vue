@@ -203,7 +203,7 @@ async function onSubmit(payload: FormSubmitEvent<any>) {
             </button>
             <p class="text-muted">
               By continuing, you agree to our
-              <ULink to="/legal/terms" class="text-primary font-medium">Terms of Service</ULink>.
+              <ULink to="/terms" class="text-primary font-medium">Terms of Service</ULink>.
             </p>
           </div>
         </template>
